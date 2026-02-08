@@ -59,6 +59,7 @@ void InitWindow(int show)
     wndClass.cbSize = sizeof(WNDCLASSEXA);
     wndClass.hInstance = g_inst;
     wndClass.lpszClassName = CLASSNAME;
+    wndClass.hCursor = LoadCursorW(g_inst, IDC_ARROW);
     wndClass.lpfnWndProc = WindowProc;
     g_wndClass = RegisterClassExA(&wndClass);
     if (!g_wndClass)
@@ -160,3 +161,10 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
     WindowLoop();
     DestroyWindow(g_wnd);
 }
+
+#ifdef _DEBUG
+int main(int argc, char* argv[])
+{
+    return WinMain(GetModuleHandleA(nullptr), nullptr, GetCommandLineA(), SW_SHOWNORMAL);
+}
+#endif
