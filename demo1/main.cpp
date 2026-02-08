@@ -9,6 +9,11 @@
 HINSTANCE g_inst;
 LPSTR g_cmdline;
 bool g_running;
+bool g_paused;
+
+UINT64 g_lastTime;
+UINT64 g_nowTime;
+float g_delta;
 
 ATOM g_wndClass;
 HWND g_wnd;
@@ -17,7 +22,7 @@ int g_height;
 RECT g_wndRect;
 
 HBITMAP g_bitmap;
-char g_rawBitmapInfo[sizeof(BITMAPINFO) + 255];
+BYTE g_rawBitmapInfo[sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 255];
 PBITMAPINFO g_bitmapInfo = (PBITMAPINFO)g_rawBitmapInfo;
 PBYTE g_framebuffer;
 int g_fbStride;
@@ -27,9 +32,22 @@ LRESULT WINAPI WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
     case WM_CLOSE:
-    case WM_QUIT:
+    case WM_QUIT: {
         g_running = false;
         break;
+    }
+    case WM_KEYDOWN: {
+        auto key = wParam;
+        switch (key)
+        {
+        case VK_ESCAPE:
+            g_running = false;
+            break;
+        case VK_SPACE:
+            g_paused = !g_paused;
+            break;
+        }
+    }
     }
 
     return DefWindowProcA(wnd, msg, wParam, lParam);
@@ -77,8 +95,15 @@ void InitWindow(int show)
     g_height = g_wndRect.bottom - g_wndRect.top;
 }
 
+void InitPalette()
+{
+    
+}
+
 void InitFramebuffer()
 {
+    InitPalette();
+
     auto& header = g_bitmapInfo->bmiHeader;
     header.biSize = sizeof(BITMAPINFOHEADER);
     header.biWidth = g_width;
@@ -88,7 +113,7 @@ void InitFramebuffer()
     header.biCompression = BI_RGB;
     g_fbStride = ((((header.biWidth * header.biBitCount) + 31) & ~31) >> 3);
     header.biSizeImage = g_fbStride * header.biHeight;
-    g_bitmap = CreateDIBSection(GetDC(g_wnd), g_bitmapInfo, DIB_PAL_COLORS, (PVOID*)&g_framebuffer, nullptr, 0);
+    g_bitmap = CreateDIBSection(GetDC(g_wnd), g_bitmapInfo, DIB_RGB_COLORS, (PVOID*)&g_framebuffer, nullptr, 0);
     if (!g_bitmap)
     {
         auto error = GetLastError();
@@ -104,9 +129,11 @@ void DrawDemo()
 
 void WindowLoop()
 {
+    g_lastTime = GetTickCount64();
     g_running = true;
     while (g_running)
     {
+        g_nowTime = GetTickCount64();
         MSG msg = {};
         while (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE))
         {
@@ -116,7 +143,10 @@ void WindowLoop()
         
         DrawDemo();
         StretchDIBits(GetDC(g_wnd), 0, 0, g_width, g_height, 0, 0, g_width, g_height, g_framebuffer,
-            g_bitmapInfo, DIB_PAL_COLORS, SRCCOPY);
+            g_bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+            
+        g_delta = g_paused ? 0.0 : (g_nowTime - g_lastTime) / 1000.0f;
+        g_lastTime = g_nowTime;
     }
 }
 

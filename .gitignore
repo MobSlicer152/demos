@@ -1,3 +1,7 @@
 *.obj
 *.exe
 *.pdb
+.vs/
+x64/
+[Dd]ebug/
+[Rr]elease/
