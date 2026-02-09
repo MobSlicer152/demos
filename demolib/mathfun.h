@@ -13,7 +13,7 @@
 
 #include "misc.h"
 
-#define PI 3.14159365359
+static constexpr float PI = 3.14159365359f;
 
 static inline constexpr float Deg2Rad(float deg)
 {
@@ -60,7 +60,7 @@ struct Vec2
 	{
 	}
 
-	constexpr Vec2(float value = 0.0) : Vec2(value, value)
+	constexpr Vec2(float value = 0.0f) : Vec2(value, value)
 	{
 	}
 
@@ -90,7 +90,7 @@ struct Vec2
 
 	Vec2 operator-() const
 	{
-		return *this * -1.0;
+		return *this * -1.0f;
 	}
 
 	Vec2 operator*(const Vec2& other) const
@@ -143,7 +143,7 @@ struct Vec2
 
 	float Length() const
 	{
-		return sqrt(x * x + y * y);
+		return sqrtf(x * x + y * y);
 	}
 
 	Vec2 Normalize() const
@@ -163,10 +163,10 @@ struct Vec2
 	static const Vec2 LEFT;
 };
 
-inline constexpr const Vec2 Vec2::UP = Vec2(0.0, 1.0);
-inline constexpr const Vec2 Vec2::DOWN = Vec2(0.0, -1.0);
-inline constexpr const Vec2 Vec2::RIGHT = Vec2(1.0, 0.0);
-inline constexpr const Vec2 Vec2::LEFT = Vec2(-1.0, 0.0);
+inline constexpr const Vec2 Vec2::UP = Vec2(0.0f, 1.0f);
+inline constexpr const Vec2 Vec2::DOWN = Vec2(0.0f, -1.0f);
+inline constexpr const Vec2 Vec2::RIGHT = Vec2(1.0f, 0.0f);
+inline constexpr const Vec2 Vec2::LEFT = Vec2(-1.0f, 0.0f);
 
 struct Vec3
 {
@@ -190,7 +190,7 @@ struct Vec3
 	{
 	}
 
-	constexpr Vec3(float value = 0.0) : Vec3(value, value, value)
+	constexpr Vec3(float value = 0.0f) : Vec3(value, value, value)
 	{
 	}
 
@@ -198,7 +198,7 @@ struct Vec3
 	{
 	}
 
-	constexpr Vec3(const Vec2& other, float z = 0.0) : Vec3(other.x, other.y, z)
+	constexpr Vec3(const Vec2& other, float z = 0.0f) : Vec3(other.x, other.y, z)
 	{
 	}
 
@@ -224,7 +224,7 @@ struct Vec3
 
 	Vec3 operator-() const
 	{
-		return *this * -1.0;
+		return *this * -1.0f;
 	}
 
 	Vec3 operator*(const Vec3& other) const
@@ -282,7 +282,7 @@ struct Vec3
 
 	float Length() const
 	{
-		return sqrt(x * x + y * y + z * z);
+		return sqrtf(x * x + y * y + z * z);
 	}
 
 	float Sign() const
@@ -308,13 +308,13 @@ struct Vec3
 
 	Vec3 ColorToNormal() const
 	{
-		return *this * 2.0 - 1.0;
+		return *this * 2.0f - 1.0f;
 	}
 
 	Vec3 Lerp(const Vec3& p1, float t) const
 	{
 		const Vec3& p0 = *this;
-		return p0 * (1.0 - t) + p1 * t;
+		return p0 * (1.0f - t) + p1 * t;
 	}
 
 	float Major() const
@@ -335,12 +335,12 @@ struct Vec3
 	static const Vec3 BACKWARD;
 };
 
-inline constexpr const Vec3 Vec3::UP = Vec3(0.0, 1.0, 0.0);
-inline constexpr const Vec3 Vec3::DOWN = Vec3(0.0, -1.0, 0.0);
-inline constexpr const Vec3 Vec3::RIGHT = Vec3(1.0, 0.0, 0.0);
-inline constexpr const Vec3 Vec3::LEFT = Vec3(-1.0, 0.0, 0.0);
-inline constexpr const Vec3 Vec3::FORWARD = Vec3(0.0, 0.0, -1.0);
-inline constexpr const Vec3 Vec3::BACKWARD = Vec3(0.0, 0.0, 1.0);
+inline constexpr const Vec3 Vec3::UP = Vec3(0.0f, 1.0f, 0.0f);
+inline constexpr const Vec3 Vec3::DOWN = Vec3(0.0f, -1.0f, 0.0f);
+inline constexpr const Vec3 Vec3::RIGHT = Vec3(1.0f, 0.0f, 0.0f);
+inline constexpr const Vec3 Vec3::LEFT = Vec3(-1.0f, 0.0f, 0.0f);
+inline constexpr const Vec3 Vec3::FORWARD = Vec3(0.0f, 0.0f, -1.0f);
+inline constexpr const Vec3 Vec3::BACKWARD = Vec3(0.0f, 0.0f, 1.0f);
 
 struct Vec3i
 {
@@ -364,7 +364,7 @@ struct Vec3i
 	{
 	}
 
-	constexpr Vec3i(int value = 0.0) : Vec3i(value, value, value)
+	constexpr Vec3i(int value = 0.0f) : Vec3i(value, value, value)
 	{
 	}
 
@@ -409,7 +409,7 @@ struct Vec3i
 
 	Vec3i operator/(int other) const
 	{
-		float inv = 1.0 / other;
+		float inv = 1.0f / other;
 		return Vec3i((int)(x * inv), (int)(y * inv), (int)(z * inv));
 	}
 
@@ -442,7 +442,7 @@ struct Vec3i
 
 	float Length() const
 	{
-		return sqrt(x * x + y * y + z * z);
+		return sqrtf((float)(x * x + y * y + z * z));
 	}
 
 	static const Vec3i UP;
@@ -477,6 +477,13 @@ struct Vec4
 			float b;
 			float a;
 		};
+		struct
+		{
+			float h;
+			float s;
+			float v;
+			float a;
+		};
 		float values[4];
 	};
 
@@ -484,7 +491,7 @@ struct Vec4
 	{
 	}
 
-	constexpr Vec4(float value = 0.0) : Vec4(value, value, value, value)
+	constexpr Vec4(float value = 0.0f) : Vec4(value, value, value, value)
 	{
 	}
 
@@ -492,11 +499,11 @@ struct Vec4
 	{
 	}
 
-	constexpr Vec4(const Vec3& other, float w = 1.0) : Vec4(other.x, other.y, other.z, w)
+	constexpr Vec4(const Vec3& other, float w = 1.0f) : Vec4(other.x, other.y, other.z, w)
 	{
 	}
 
-	constexpr Vec4(const Vec2& other, float z = 0.0, float w = 1.0) : Vec4(other.x, other.y, z, w)
+	constexpr Vec4(const Vec2& other, float z = 0.0f, float w = 1.0f) : Vec4(other.x, other.y, z, w)
 	{
 	}
 
@@ -522,7 +529,7 @@ struct Vec4
 
 	Vec4 operator-() const
 	{
-		return *this * -1.0;
+		return *this * -1.0f;
 	}
 
 	Vec4 operator*(const Vec4& other) const
@@ -575,7 +582,7 @@ struct Vec4
 
 	float Length() const
 	{
-		return sqrt(x * x + y * y + z * z + w * w);
+		return sqrtf(x * x + y * y + z * z + w * w);
 	}
 
 	float Sign() const
@@ -607,17 +614,17 @@ struct Vec4
 	static const Vec4 BLUE;
 };
 
-inline constexpr const Vec4 Vec4::UP = Vec4(Vec3::UP, 0.0);
-inline constexpr const Vec4 Vec4::DOWN = Vec4(Vec3::DOWN, 0.0);
-inline constexpr const Vec4 Vec4::RIGHT = Vec4(Vec3::RIGHT, 0.0);
-inline constexpr const Vec4 Vec4::LEFT = Vec4(Vec3::LEFT, 0.0);
-inline constexpr const Vec4 Vec4::FORWARD = Vec4(Vec3::FORWARD, 0.0);
-inline constexpr const Vec4 Vec4::BACKWARD = Vec4(Vec3::BACKWARD, 0.0);
-inline constexpr const Vec4 Vec4::WHITE = Vec4(1.0);
-inline constexpr const Vec4 Vec4::BLACK = Vec4(0.0);
-inline constexpr const Vec4 Vec4::RED = Vec4(1.0, 0.0, 0.0, 1.0);
-inline constexpr const Vec4 Vec4::GREEN = Vec4(0.0, 1.0, 0.0, 1.0);
-inline constexpr const Vec4 Vec4::BLUE = Vec4(0.0, 0.0, 1.0, 1.0);
+inline constexpr const Vec4 Vec4::UP = Vec4(Vec3::UP, 0.0f);
+inline constexpr const Vec4 Vec4::DOWN = Vec4(Vec3::DOWN, 0.0f);
+inline constexpr const Vec4 Vec4::RIGHT = Vec4(Vec3::RIGHT, 0.0f);
+inline constexpr const Vec4 Vec4::LEFT = Vec4(Vec3::LEFT, 0.0f);
+inline constexpr const Vec4 Vec4::FORWARD = Vec4(Vec3::FORWARD, 0.0f);
+inline constexpr const Vec4 Vec4::BACKWARD = Vec4(Vec3::BACKWARD, 0.0f);
+inline constexpr const Vec4 Vec4::WHITE = Vec4(1.0f);
+inline constexpr const Vec4 Vec4::BLACK = Vec4(0.0f);
+inline constexpr const Vec4 Vec4::RED = Vec4(1.0f, 0.0f, 0.0f, 1.0f);
+inline constexpr const Vec4 Vec4::GREEN = Vec4(0.0f, 1.0f, 0.0f, 1.0f);
+inline constexpr const Vec4 Vec4::BLUE = Vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
 // https://danceswithcode.net/engineeringnotes/quaternions/quaternions.html
 // Euler stuff is ZYX ordered
@@ -641,11 +648,11 @@ struct Quat
 	{
 	}
 
-	Quat(const Vec3& axis = Vec3::UP, float angle = 0.0)
+	Quat(const Vec3& axis = Vec3::UP, float angle = 0.0f)
 	{
 		Vec3 normalAxis = axis.Normalize();
-		float factor = sin(angle * 0.5);
-		w = cos(angle * 0.5);
+		float factor = sinf(angle * 0.5f);
+		w = cosf(angle * 0.5f);
 		x = normalAxis.x * factor;
 		y = normalAxis.y * factor;
 		z = normalAxis.z * factor;
@@ -661,9 +668,9 @@ struct Quat
 			return Quat();
 		}
 
-		float half = len * 0.5;
-		float s = sin(half);
-		float c = cos(half);
+		float half = len * 0.5f;
+		float s = sinf(half);
+		float c = cosf(half);
 		return Quat(v.x * s, v.y * s, v.z * s, len * c).Normalize();
 	}
 
@@ -741,9 +748,9 @@ struct Quat
 	Quat operator^(float other)
 	{
 		float norm = Norm();
-		float phi = acos(w / norm);
-		Quat ns = GetAxis().Normalize() * sin(other * phi);
-		return (Quat(ns.x, ns.y, ns.z, cos(other * phi)) * pow(norm, other)).Normalize();
+		float phi = acosf(w / norm);
+		Quat ns = GetAxis().Normalize() * sinf(other * phi);
+		return (Quat(ns.x, ns.y, ns.z, cosf(other * phi)) * powf(norm, other)).Normalize();
 	}
 
 	Vec3 ActiveRotate(const Vec3& other) const
@@ -772,7 +779,7 @@ struct Quat
 
 	float Norm() const
 	{
-		return sqrt(x * x + y * y + z * z + w * w);
+		return sqrtf(x * x + y * y + z * z + w * w);
 	}
 
 	Quat Normalize() const
@@ -780,7 +787,7 @@ struct Quat
 		float len = Norm();
 		if (len == 0)
 		{
-			return Quat(0.0, 0.0);
+			return Quat(0.0f, 0.0f);
 		}
 		len = 1 / len;
 		return Quat(x * len, y * len, z * len, w * len);
@@ -793,14 +800,14 @@ struct Quat
 
 	float GetAngle() const
 	{
-		return 2 * acos(w);
+		return 2 * acosf(w);
 	}
 
 	Vec3 ToEuler() const
 	{
-		return Vec3(atan2(2 * (w * x + y * z), w * w - x * x - y * y + z * z),
-					asin(2 * (w * y - x * z)),
-					atan2(2 * (w * z + x * y), w * w + x * x - y * y - z * z));
+		return Vec3(atan2f(2 * (w * x + y * z), w * w - x * x - y * y + z * z),
+					asinf(2 * (w * y - x * z)),
+					atan2f(2 * (w * z + x * y), w * w + x * x - y * y - z * z));
 	}
 
 	Quat Slerp(const Quat& q1, float t) const
@@ -815,7 +822,7 @@ struct Mat4
 {
 	Vec4 columns[4];
 
-	Mat4() : Mat4(1.0)
+	Mat4() : Mat4(1.0f)
 	{
 	}
 
@@ -867,7 +874,7 @@ struct Mat4
 		// 0 1 0 y
 		// 0 0 1 z
 		// 0 0 0 1
-		return Mat4(Vec4(1.0, 0.0, 0.0, 0.0), Vec4(0.0, 1.0, 0.0, 0.0), Vec4(0.0, 0.0, 1.0, 0.0), Vec4(x, y, z, 1.0));
+		return Mat4(Vec4(1.0f, 0.0f, 0.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 0.0f), Vec4(0.0f, 0.0f, 1.0f, 0.0f), Vec4(x, y, z, 1.0f));
 	}
 
 	static Mat4 Translate(const Vec3& v)
@@ -881,10 +888,10 @@ struct Mat4
 		float y2 = q.y * q.y;
 		float z2 = q.z * q.z;
 		float w2 = q.w * q.w;
-		return Mat4(Vec4(w2 + x2 - y2 - z2, 2 * q.x * q.y + 2 * q.w * q.z, 2 * q.x * q.z - 2 * q.w * q.y, 0.0),
-					Vec4(2 * q.x * q.y - 2 * q.w * q.z, w2 - x2 + y2 - z2, 2 * q.y * q.z + 2 * q.w * q.x, 0.0),
-					Vec4(2 * q.x * q.z + 2 * q.w * q.y, 2 * q.y * q.z - 2 * q.w * q.x, w2 - x2 - y2 - z2, 0.0),
-					Vec4(0.0, 0.0, 0.0, 1.0));
+		return Mat4(Vec4(w2 + x2 - y2 - z2, 2 * q.x * q.y + 2 * q.w * q.z, 2 * q.x * q.z - 2 * q.w * q.y, 0.0f),
+					Vec4(2 * q.x * q.y - 2 * q.w * q.z, w2 - x2 + y2 - z2, 2 * q.y * q.z + 2 * q.w * q.x, 0.0f),
+					Vec4(2 * q.x * q.z + 2 * q.w * q.y, 2 * q.y * q.z - 2 * q.w * q.x, w2 - x2 - y2 - z2, 0.0f),
+					Vec4(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	static Mat4 Scale(float x, float y, float z)
@@ -893,7 +900,7 @@ struct Mat4
 		// 0 y 0 0
 		// 0 0 z 0
 		// 0 0 0 1
-		return Mat4(Vec4(x, 0.0, 0.0, 0.0), Vec4(0.0, y, 0.0, 0.0), Vec4(0.0, 0.0, z, 0.0), Vec4(0.0, 0.0, 0.0, 1.0));
+		return Mat4(Vec4(x, 0.0f, 0.0f, 0.0f), Vec4(0.0f, y, 0.0f, 0.0f), Vec4(0.0f, 0.0f, z, 0.0f), Vec4(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	static Mat4 Scale(const Vec3& v)
@@ -913,24 +920,24 @@ struct Mat4
 		Vec3 s = f.Cross(up).Normalize();
 		Vec3 u = s.Cross(f);
 
-		return Mat4(Vec4(s.x, u.x, f.x, 0.0),
-					Vec4(s.y, u.y, f.y, 0.0),
-					Vec4(s.z, u.z, f.z, 0.0),
-					Vec4(-s.Dot(camera), -u.Dot(camera), -f.Dot(camera), 1.0));
+		return Mat4(Vec4(s.x, u.x, f.x, 0.0f),
+					Vec4(s.y, u.y, f.y, 0.0f),
+					Vec4(s.z, u.z, f.z, 0.0f),
+					Vec4(-s.Dot(camera), -u.Dot(camera), -f.Dot(camera), 1.0f));
 	}
 
 	static Mat4 Look(const Transform& transform);
 
 	static Mat4 Perspective(float fov, float aspect, float zNear, float zFar)
 	{
-		float f = 1.0 / tan(fov * 0.5);
-		float range = 1.0 / (zNear - zFar);
+		float f = 1.0f / tanf(fov * 0.5f);
+		float range = 1.0f / (zNear - zFar);
 
 		// https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
-		return Mat4(Vec4(f / aspect, 0.0, 0.0, 0.0),
-					Vec4(0.0, f, 0.0, 0.0),
-					Vec4(0.0, 0.0, (zFar + zNear) * range, -1.0),
-					Vec4(0.0, 0.0, 2 * zNear * zFar * range, 0.0));
+		return Mat4(Vec4(f / aspect, 0.0f, 0.0f, 0.0f),
+					Vec4(0.0f, f, 0.0f, 0.0f),
+					Vec4(0.0f, 0.0f, (zFar + zNear) * range, -1.0f),
+					Vec4(0.0f, 0.0f, 2 * zNear * zFar * range, 0.0f));
 	}
 };
 
@@ -950,7 +957,7 @@ struct Transform
 	Quat rotation;
 	Vec3 scale;
 
-	Transform(const Vec3& position = Vec3(), const Quat& rotation = Quat(), const Vec3& scale = Vec3(1.0))
+	Transform(const Vec3& position = Vec3(), const Quat& rotation = Quat(), const Vec3& scale = Vec3(1.0f))
 		: position(position), rotation(rotation), scale(scale)
 	{
 	}
@@ -969,4 +976,37 @@ struct Transform
 inline Mat4 Mat4::Look(const Transform& transform)
 {
 	return Mat4::Rotate(transform.rotation.Inverse()) * Mat4::Translate(-transform.position);
+}
+
+static FORCEINLINE Vec4 HsvToRgb(Vec4 hsv)
+{
+	float c = hsv.v * hsv.s;
+	float x = c * (1 - abs(fmodf((hsv.h / 60.0f), 2) - 1));
+	float m = hsv.v - c;
+	float h = fmodf(hsv.h, 360.0f);
+	if (hsv.h >= 0.0f && hsv.h < 60.0f)
+	{
+		return Vec4(c, x, 0, hsv.a);
+	}
+	else if (hsv.h >= 60.0f && hsv.h < 120.0f)
+	{
+		return Vec4(x, c, 0, hsv.a);
+	}
+	else if (hsv.h >= 120.0f && hsv.h < 180.0f)
+	{
+		return Vec4(0, c, x, hsv.a);
+	}
+	else if (hsv.h >= 180.0f && hsv.h < 240.0f)
+	{
+		return Vec4(0, x, c, hsv.a);
+	}
+	else if (hsv.h >= 240.0f && hsv.h < 300.0f)
+	{
+		return Vec4(x, 0, c, hsv.a);
+	}
+	else if (hsv.h >= 300.0f && hsv.h < 360.0f)
+	{
+		// cocks
+		return Vec4(c, 0, x, hsv.a);
+	}
 }

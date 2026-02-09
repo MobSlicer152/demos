@@ -34,7 +34,7 @@ void CCamera::SetPosition(const Vec3& pos)
 void CCamera::Rotate(float yaw /*= 0.0f*/, float pitch /*= 0.0f*/)
 {
 	m_pitch = std::clamp(m_pitch + pitch, -m_fov, m_fov); // clamp pitch to 180 degree range
-	m_yaw = fmod(m_yaw + yaw, 2 * PI); // prevent yaw from getting too big to keep float error small
+	m_yaw = fmodf(m_yaw + yaw, 2 * PI); // prevent yaw from getting too big to keep float error small
 	m_transform.rotation = (Quat(Vec3::RIGHT, -m_pitch) * Quat(Vec3::UP, m_yaw)).Normalize();
 	m_forward = (m_transform.rotation * Vec3::FORWARD).Normalize();
 	m_up = (m_transform.rotation * Vec3::UP).Normalize();

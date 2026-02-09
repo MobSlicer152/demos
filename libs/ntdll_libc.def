@@ -1,0 +1,9 @@
+LIBRARY ntdll
+EXPORTS
+	_snwprintf
+	wcslen
+	wcsncpy
+	wcsrchr
+	memset
+	memcpy
+	_vsnprintf_s

@@ -3,8 +3,6 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="demo1/demo1.vcxproj" Id="cee30785-c6be-4e60-b43c-3cff5a9303ba">
-    <BuildDependency Project="demolib/demolib.vcxproj" />
-  </Project>
+  <Project Path="demo1/demo1.vcxproj" Id="cee30785-c6be-4e60-b43c-3cff5a9303ba" />
   <Project Path="demolib/demolib.vcxproj" Id="146a8391-8154-405e-8ece-6b27f276549f" />
 </Solution>
