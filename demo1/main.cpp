@@ -7,5 +7,5 @@ void InitPalette()
 
 void DrawDemo()
 {
-    memset(g_framebuffer, (int)(g_elapsed * 32) % 32, g_bitmapInfo->bmiHeader.biSizeImage);
+    memset(g_framebuffer, (int)(g_elapsed * 10) % 255, g_bitmapInfo->bmiHeader.biSizeImage);
 }
