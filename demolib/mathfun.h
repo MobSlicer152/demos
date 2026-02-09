@@ -479,7 +479,7 @@ struct Vec4
 		};
 		struct
 		{
-			float h;
+			float h; // radians
 			float s;
 			float v;
 			float a;
@@ -981,32 +981,34 @@ inline Mat4 Mat4::Look(const Transform& transform)
 static FORCEINLINE Vec4 HsvToRgb(Vec4 hsv)
 {
 	float c = hsv.v * hsv.s;
-	float x = c * (1 - abs(fmodf((hsv.h / 60.0f), 2) - 1));
+	float x = c * (1 - abs(fmodf(hsv.h / (PI / 3), 2) - 1));
 	float m = hsv.v - c;
-	float h = fmodf(hsv.h, 360.0f);
-	if (hsv.h >= 0.0f && hsv.h < 60.0f)
+	float h = fmodf(hsv.h, 2 * PI);
+	Vec4 rgb;
+	if (hsv.h >= 0.0f && hsv.h < PI / 3)
 	{
-		return Vec4(c, x, 0, hsv.a);
+		rgb = Vec4(c, x, 0, hsv.a);
 	}
-	else if (hsv.h >= 60.0f && hsv.h < 120.0f)
+	else if (hsv.h >= PI / 3 && hsv.h < 2 * PI / 3)
 	{
-		return Vec4(x, c, 0, hsv.a);
+		rgb = Vec4(x, c, 0, hsv.a);
 	}
-	else if (hsv.h >= 120.0f && hsv.h < 180.0f)
+	else if (hsv.h >= 2 * PI / 3 && hsv.h < PI)
 	{
-		return Vec4(0, c, x, hsv.a);
+		rgb = Vec4(0, c, x, hsv.a);
 	}
-	else if (hsv.h >= 180.0f && hsv.h < 240.0f)
+	else if (hsv.h >= PI && hsv.h < 4 * PI / 3)
 	{
-		return Vec4(0, x, c, hsv.a);
+		rgb = Vec4(0, x, c, hsv.a);
 	}
-	else if (hsv.h >= 240.0f && hsv.h < 300.0f)
+	else if (hsv.h >= 4 * PI / 3 && hsv.h < 10 * PI / 6)
 	{
-		return Vec4(x, 0, c, hsv.a);
+		rgb = Vec4(x, 0, c, hsv.a);
 	}
-	else if (hsv.h >= 300.0f && hsv.h < 360.0f)
+	else if (hsv.h >= 10 * PI / 6 && hsv.h < 2 * PI)
 	{
-		// cocks
-		return Vec4(c, 0, x, hsv.a);
+		rgb = Vec4(c, 0, x, hsv.a);
 	}
+	rgb += Vec4(Vec3(m), 0.0);
+	return rgb;
 }

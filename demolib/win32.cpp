@@ -13,6 +13,7 @@ UINT64 g_lastTime;
 UINT64 g_nowTime;
 float g_delta;
 float g_elapsed;
+int g_targetFps = DEFAULT_TARGET_FPS;
 
 ATOM g_wndClass;
 HWND g_wnd;
@@ -121,24 +122,29 @@ extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, ...)
 
 extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list args)
 {
-	char buf[512] = {}; // avoid allocation since it could be the cause
+	char buf[512] = {}; // avoid allocation since it could be the cause of the error
 	_vsnprintf_s(buf, ArraySize(buf), msg, args);
 	buf[ArraySize(buf) - 1] = 0;
-	MessageBoxA(g_wnd, buf, "Fatal error", MB_OK);
+	MessageBoxA(g_wnd, buf, "Fatal error", MB_OK | MB_ICONERROR);
 	ExitProcess(code);
+}
+
+extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b)
+{
+	index = index % 255;
+	auto& colors = g_bitmapInfo->bmiColors;
+	colors[index].rgbRed = r;
+	colors[index].rgbGreen = g;
+	colors[index].rgbBlue = b;
 }
 
 void InitStandardPalette()
 {
-	auto& colors = g_bitmapInfo->bmiColors;
-
 	// first 32 are shades
 	// dont need any hsv for this
 	for (int v = 0; v < 32; v++)
 	{
-		colors[v].rgbRed = v * 8;
-		colors[v].rgbGreen = v * 8;
-		colors[v].rgbBlue = v * 8;
+		SetColor(v, v * 8, v * 8, v * 8);
 	}
 
 	// can do 7 more rows. 5 for different value, 2 for different saturation
@@ -147,24 +153,19 @@ void InitStandardPalette()
 	auto row = [&](int s, int v) {
 		for (int h = 0; h < 32; h++)
 		{
-			// 360/32 = 11.25
-			Vec4 c = HsvToRgb(Vec4(h * 11, 1.0f / s, 1.0f / v, 1.0f));
-			colors[i].rgbRed = BYTE(c.r * 255);
-			colors[i].rgbGreen = BYTE(c.g * 255);
-			colors[i].rgbBlue = BYTE(c.b * 255);
+			Vec4 c = HsvToRgb(Vec4(h * (PI / 16), 1.0f / s, 1.0f / v, 1.0f)) * 255;
+			SetColor(i, (BYTE)c.r, (BYTE)c.g, (BYTE)c.b);
 			i++;
 		}
 	};
 
-	for (int v = 1; v <= 5; v++)
-	{
-		row(1, v);
-	}
-
-	for (int s = 1; s <= 2; s++)
-	{
-		row(s, 1.0);
-	}
+	row(3, 1);
+	row(2, 1);
+	row(1, 1);
+	row(1, 2);
+	row(1, 3);
+	row(1, 4);
+	row(1, 5);
 }
 
 static void InitFramebuffer()
@@ -188,6 +189,16 @@ static void InitFramebuffer()
 	}
 }
 
+static void SleepToNextFrame()
+{
+	float spf = 1.0 / g_targetFps;
+	float delay = spf - g_delta;
+	if (delay > 0.0)
+	{
+		Sleep((DWORD)(delay * 1000));
+	}
+}
+
 static void WindowLoop()
 {
 	g_lastTime = GetTickCount64();
@@ -204,9 +215,22 @@ static void WindowLoop()
 
 		DrawDemo();
 		StretchDIBits(
-			GetDC(g_wnd), 0, 0, g_width, g_height, 0, 0, g_width, g_height, g_framebuffer, g_bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+			GetDC(g_wnd),
+			0,
+			g_height,
+			g_width,
+			-g_height,
+			0,
+			0,
+			g_width,
+			g_height,
+			g_framebuffer,
+			g_bitmapInfo,
+			DIB_RGB_COLORS,
+			SRCCOPY);
 
 		g_delta = g_paused ? 0.0f : (g_nowTime - g_lastTime) / 1000.0f;
+		SleepToNextFrame();
 		g_elapsed += g_delta;
 		g_lastTime = g_nowTime;
 	}
@@ -226,7 +250,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 #ifdef _DEBUG
 #define ENTRY mainCRTStartup
 #else
-#define ENTRY _WinMainCRTStartup
+#define ENTRY WinMainCRTStartup
 #endif
 
 extern "C" void ENTRY()
