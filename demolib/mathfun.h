@@ -30,6 +30,11 @@ static inline constexpr float AtLeast(float value, float min = FLT_EPSILON)
 	return abs(value) > min ? value : 0.0f;
 }
 
+static FORCEINLINE bool FloatEqual(float a, float b, float epsilon = FLT_EPSILON)
+{
+	return abs(a - b) < epsilon;
+}
+
 // predeclare these, so they can reference each other
 struct Vec2;
 struct Vec3;
@@ -139,6 +144,11 @@ struct Vec2
 	float Dot(const Vec2& other) const
 	{
 		return x * other.x + y * other.y;
+	}
+
+	float Cross(const Vec2& other) const
+	{
+		return x * other.y - other.x * y;
 	}
 
 	float Length() const

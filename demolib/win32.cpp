@@ -27,6 +27,8 @@ static BYTE s_rawBitmapInfo[sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 255];
 PBITMAPINFO g_bitmapInfo = (PBITMAPINFO)s_rawBitmapInfo;
 PBYTE g_framebuffer;
 int g_fbStride;
+bool g_autoClear = true;
+BYTE g_clearColor = 0;
 
 #define CLASSNAME "Demo1"
 
@@ -131,7 +133,7 @@ extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list ar
 
 extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b)
 {
-	index = index % 255;
+	index = index % 256;
 	auto& colors = g_bitmapInfo->bmiColors;
 	colors[index].rgbRed = r;
 	colors[index].rgbGreen = g;
@@ -211,6 +213,11 @@ static void WindowLoop()
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+		}
+
+		if (g_autoClear)
+		{
+			memset(g_framebuffer, g_clearColor, g_fbStride * g_height);
 		}
 
 		DrawDemo();

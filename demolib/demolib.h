@@ -30,6 +30,8 @@ extern HBITMAP g_bitmap;
 extern PBITMAPINFO g_bitmapInfo;
 extern PBYTE g_framebuffer;
 extern int g_fbStride;
+extern bool g_autoClear;
+extern BYTE g_clearColor;
 
 // demo functions, provided by individual demo
 
@@ -48,6 +50,8 @@ extern void InitStandardPalette();
 
 // set a pixel
 extern void SetPixel(uint32_t x, uint32_t y, BYTE color);
+// set a pixel but 0..1 instead of 0..g_width/height
+extern void SetPixel(float x, float y, BYTE color);
 
 // draw the palette
 extern void DrawPalette(
