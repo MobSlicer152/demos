@@ -223,9 +223,9 @@ static void WindowLoop()
 		DrawDemo();
 		StretchDIBits(
 			GetDC(g_wnd),
-			0,
-			g_height,
 			g_width,
+			g_height,
+			-g_width,
 			-g_height,
 			0,
 			0,

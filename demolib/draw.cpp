@@ -30,38 +30,38 @@ void DrawRectangle(const Vec3& a, const Vec3& b, BYTE color)
 
 void DrawLine(const Vec3& start, const Vec3& end, BYTE color)
 {
-	const auto& s = start;
-	const auto& e = end;
+	auto x0 = (int32_t)(start.x * g_width);
+	auto y0 = (int32_t)(start.y * g_height);
+	auto x1 = (int32_t)(end.x * g_width);
+	auto y1 = (int32_t)(end.y * g_height);
 
-	float dx = abs(e.x - s.x);
-	float sx = s.x < e.x ? 0.01 : -0.01;
-	float dy = abs(e.y - s.y);
-	float sy = s.y < e.y ? 0.01 : -0.01;
+	int32_t dx = abs(x1 - x0);
+	int32_t sx = x0 < x1 ? 1 : -1;
+	int32_t dy = -abs(y1 - y0);
+	int32_t sy = y0 < y1 ? 1 : -1;
 
-	float error = dx + dy;
-	float x = s.x;
-	float y = s.y;
+	int32_t error = dx + dy;
 	while (true)
 	{
-		SetPixel(x, y, color);
-		float e2 = error * 2;
+		SetPixel((uint32_t)x0, (uint32_t)y0, color);
+		auto e2 = error * 2;
 		if (e2 >= dy)
 		{
-			if (FloatEqual(x, e.x, sx))
+			if (x0 == x1)
 			{
 				break;
 			}
 			error += dy;
-			x += sx;
+			x0 += sx;
 		}
 		if (e2 <= dx)
 		{
-			if (FloatEqual(y, e.y, sy))
+			if (y0 == y1)
 			{
 				break;
 			}
 			error += dx;
-			y += sy;
+			y0 += sy;
 		}
 	}
 }
