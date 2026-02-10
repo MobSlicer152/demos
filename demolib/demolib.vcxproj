@@ -189,15 +189,19 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="anorms.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="demolib.h" />
+    <ClInclude Include="md2.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="mathfun.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="color.cpp" />
     <ClCompile Include="crt.cpp" />
+    <ClCompile Include="md2.cpp" />
     <ClCompile Include="win32.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="pch.cpp">

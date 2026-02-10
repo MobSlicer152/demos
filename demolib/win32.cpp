@@ -17,8 +17,8 @@ int g_targetFps = DEFAULT_TARGET_FPS;
 
 ATOM g_wndClass;
 HWND g_wnd;
-int g_width;
-int g_height;
+uint32_t g_width;
+uint32_t g_height;
 float g_aspect;
 RECT g_wndRect;
 
@@ -26,9 +26,10 @@ HBITMAP g_bitmap;
 static BYTE s_rawBitmapInfo[sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 255];
 PBITMAPINFO g_bitmapInfo = (PBITMAPINFO)s_rawBitmapInfo;
 PBYTE g_framebuffer;
-int g_fbStride;
+uint32_t g_fbStride;
 bool g_autoClear = true;
 BYTE g_clearColor = 0;
+BYTE g_ditherTab[DITHER_TABLE_SIZE];
 
 #define CLASSNAME "Demo1"
 
@@ -131,47 +132,12 @@ extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list ar
 	ExitProcess(code);
 }
 
-extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b)
-{
-	index = index % 256;
-	auto& colors = g_bitmapInfo->bmiColors;
-	colors[index].rgbRed = r;
-	colors[index].rgbGreen = g;
-	colors[index].rgbBlue = b;
-}
-
-void InitStandardPalette()
-{
-	// first 32 are shades
-	// dont need any hsv for this
-	for (int v = 0; v < 32; v++)
-	{
-		SetColor(v, v * 8, v * 8, v * 8);
-	}
-
-	// can do 7 more rows. 5 for different value, 2 for different saturation
-
-	int i = 32;
-	auto row = [&](int s, int v) {
-		for (int h = 0; h < 32; h++)
-		{
-			Vec4 c = HsvToRgb(Vec4(h * (PI / 16), 1.0f / s, 1.0f / v, 1.0f)) * 255;
-			SetColor(i, (BYTE)c.r, (BYTE)c.g, (BYTE)c.b);
-			i++;
-		}
-	};
-
-	row(3, 1);
-	row(2, 1);
-	row(1, 1);
-	row(1, 2);
-	row(1, 3);
-	row(1, 4);
-	row(1, 5);
-}
+// calculates similar colors for dithering
+extern void CalcDitherColors();
 
 static void InitFramebuffer()
 {
+	auto dc = GetDC(g_wnd);
 	InitPalette();
 
 	auto& header = g_bitmapInfo->bmiHeader;
@@ -183,19 +149,21 @@ static void InitFramebuffer()
 	header.biCompression = BI_RGB;
 	g_fbStride = ((((header.biWidth * header.biBitCount) + 31) & ~31) >> 3);
 	header.biSizeImage = g_fbStride * header.biHeight;
-	g_bitmap = CreateDIBSection(GetDC(g_wnd), g_bitmapInfo, DIB_RGB_COLORS, (PVOID*)&g_framebuffer, nullptr, 0);
+	g_bitmap = CreateDIBSection(dc, g_bitmapInfo, DIB_RGB_COLORS, (PVOID*)&g_framebuffer, nullptr, 0);
 	if (!g_bitmap)
 	{
 		auto error = GetLastError();
 		ErrorMessage(error, "failed to create bitmap: %d\n", error);
 	}
+
+	ReleaseDC(g_wnd, dc);
 }
 
 static void SleepToNextFrame()
 {
-	float spf = 1.0 / g_targetFps;
+	float spf = 1.0f / g_targetFps;
 	float delay = spf - g_delta;
-	if (delay > 0.0)
+	if (delay > 0.0f)
 	{
 		Sleep((DWORD)(delay * 1000));
 	}
@@ -221,12 +189,14 @@ static void WindowLoop()
 		}
 
 		DrawDemo();
+
+		auto dc = GetDC(g_wnd);
 		StretchDIBits(
-			GetDC(g_wnd),
+			dc,
 			g_width,
 			g_height,
-			-g_width,
-			-g_height,
+			-g_width - 1,
+			-g_height - 1,
 			0,
 			0,
 			g_width,
@@ -235,6 +205,7 @@ static void WindowLoop()
 			g_bitmapInfo,
 			DIB_RGB_COLORS,
 			SRCCOPY);
+		ReleaseDC(g_wnd, dc);
 
 		g_delta = g_paused ? 0.0f : (g_nowTime - g_lastTime) / 1000.0f;
 		SleepToNextFrame();

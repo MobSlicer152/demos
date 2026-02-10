@@ -181,7 +181,7 @@
       <AdditionalDependencies>$(CoreLibraryDependencies);ntdll_libc.lib;legacy_stdio_definitions.lib;ucrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)tools\upx.exe -q -l -9 -o "$(TargetDir)\$(TargetName)_packed.exe" "$(TargetPath)"</Command>
+      <Command>$(SolutionDir)tools\upx.exe -9 -o "$(TargetDir)\$(TargetName)_packed.exe" "$(TargetPath)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Packing executable</Message>

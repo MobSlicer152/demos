@@ -19,13 +19,25 @@ void DrawPalette(uint32_t width, uint32_t height, uint32_t xi, uint32_t yi, uint
 	{
 		for (uint32_t x = xi; x < width; x++)
 		{
-			SetPixel(x, y, (BYTE)((float)y / height * rows) * perRow + (int)((float)x / width * perRow));
+			SetPixel(x, y, (BYTE)((float)y / height * rows) * perRow + (BYTE)((float)x / width * perRow));
 		}
 	}
 }
 
 void DrawRectangle(const Vec3& a, const Vec3& b, BYTE color)
 {
+	auto ax = (uint32_t)(a.x * g_width);
+	auto ay = (uint32_t)(a.y * g_height);
+	auto bx = (uint32_t)(b.x * g_width);
+	auto by = (uint32_t)(b.y * g_height);
+	for (uint32_t y = ay; y < by; y++)
+	{
+		// TODO: use memset (just needs a proper bounds check but i'm lazy)
+		for (uint32_t x = ax; x < bx; x++)
+		{
+			SetPixel(x, y, color);
+		}
+	}
 }
 
 void DrawLine(const Vec3& start, const Vec3& end, BYTE color)
@@ -39,6 +51,8 @@ void DrawLine(const Vec3& start, const Vec3& end, BYTE color)
 	int32_t sx = x0 < x1 ? 1 : -1;
 	int32_t dy = -abs(y1 - y0);
 	int32_t sy = y0 < y1 ? 1 : -1;
+
+	// TODO: use memset for horizontal lines
 
 	int32_t error = dx + dy;
 	while (true)
@@ -73,7 +87,7 @@ static void RasterTriangle(const Vec2& p1, const Vec2& p2, const Vec3& p3, BYTE 
 	DrawLine(p3, p1, c3);
 }
 
-void DrawTriangle(const Vec3& p1, const Vec3& p2, const Vec3& p3, BYTE c1, BYTE c2, BYTE c3, DrawMode mode, uint32_t textureId)
+void DrawTriangle(const Vec4& p1, const Vec4& p2, const Vec4& p3, BYTE c1, BYTE c2, BYTE c3, DrawMode mode, uint32_t textureId)
 {
 	RasterTriangle(Vec2(p1.x, p1.y), Vec2(p2.x, p2.y), Vec3(p3.x, p3.y), c1, c2, c3, textureId);
 }

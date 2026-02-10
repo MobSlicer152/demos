@@ -4,6 +4,7 @@
 
 #include "camera.h"
 #include "mathfun.h"
+#include "md2.h"
 #include "misc.h"
 
 extern HINSTANCE g_inst;
@@ -21,17 +22,21 @@ extern int g_targetFps;
 
 extern ATOM g_wndClass;
 extern HWND g_wnd;
-extern int g_width;
-extern int g_height;
+extern uint32_t g_width;
+extern uint32_t g_height;
 extern float g_aspect;
 extern RECT g_wndRect;
+
+#define PALETTE_SIZE 256
+#define DITHER_TABLE_SIZE (PALETTE_SIZE * PALETTE_SIZE)
 
 extern HBITMAP g_bitmap;
 extern PBITMAPINFO g_bitmapInfo;
 extern PBYTE g_framebuffer;
-extern int g_fbStride;
+extern uint32_t g_fbStride;
 extern bool g_autoClear;
 extern BYTE g_clearColor;
+extern BYTE g_ditherTab[DITHER_TABLE_SIZE];
 
 // demo functions, provided by individual demo
 
@@ -82,7 +87,14 @@ static constexpr uint32_t INVALID_TEXTURE_ID = 0;
 
 // draw a triangle
 extern void DrawTriangle(
-	const Vec3& p1, const Vec3& p2, const Vec3& p3, BYTE c1 = 31, BYTE c2 = 31, BYTE c3 = 31, DrawMode mode = DrawMode::Shaded, uint32_t textureId = INVALID_TEXTURE_ID);
+	const Vec4& p1,
+	const Vec4& p2,
+	const Vec4& p3,
+	BYTE c1 = 31,
+	BYTE c2 = 31,
+	BYTE c3 = 31,
+	DrawMode mode = DrawMode::Shaded,
+	uint32_t textureId = INVALID_TEXTURE_ID);
 
 // display an error messagebox and exit the process
 extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, ...);
