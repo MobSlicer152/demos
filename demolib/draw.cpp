@@ -1,5 +1,5 @@
-#include "pch.h"
 #include "demolib.h"
+#include "pch.h"
 
 void SetPixel(uint32_t x, uint32_t y, BYTE color)
 {
@@ -80,14 +80,72 @@ void DrawLine(const Vec3& start, const Vec3& end, BYTE color)
 	}
 }
 
-static void RasterTriangle(const Vec2& p1, const Vec2& p2, const Vec3& p3, BYTE c1, BYTE c2, BYTE c3, uint32_t textureId)
+static float TriangleArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3)
 {
-	DrawLine(p1, p2, c1);
-	DrawLine(p2, p3, c2);
-	DrawLine(p3, p1, c3);
+	return ((y2 - y1) * (x2 + x1) + (y3 - y2) * (x3 + x2) + (y1 - y3) * (x1 + x3)) / 2.0f;
+}
+
+static void RasterTriangle(
+	int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, BYTE c1, BYTE c2, BYTE c3, uint32_t textureId)
+{
+	auto minX = std::min(x1, std::min(x2, x3));
+	auto minY = std::min(y1, std::min(y2, y3));
+	auto maxX = std::max(x1, std::max(x2, x3));
+	auto maxY = std::max(y1, std::max(y2, y3));
+
+	float area = TriangleArea(x1, y1, x2, y2, x3, y3);
+	//// get rid of small triangles
+	//if (area < 1)
+	//{
+	//	return;
+	//}
+
+	for (auto y = minY; y <= maxY; y++)
+	{
+		for (auto x = minX; x <= maxX; x++)
+		{
+			float a = TriangleArea(x, y, x2, y2, x3, y3) / area;
+			float b = TriangleArea(x, y, x3, y3, x1, y1) / area;
+			float c = TriangleArea(x, y, x1, y1, x2, y2) / area;
+			if (a < 0 || b < 0 || c < 0)
+			{
+				continue;
+			}
+
+			SetPixel((uint32_t)x, (uint32_t)y, c1);
+		}
+	}
 }
 
 void DrawTriangle(const Vec4& p1, const Vec4& p2, const Vec4& p3, BYTE c1, BYTE c2, BYTE c3, DrawMode mode, uint32_t textureId)
 {
-	RasterTriangle(Vec2(p1.x, p1.y), Vec2(p2.x, p2.y), Vec3(p3.x, p3.y), c1, c2, c3, textureId);
+	switch (mode)
+	{
+	case DrawMode::Shaded:
+		RasterTriangle(
+			p1.x * g_width,
+			p1.y * g_height,
+			p2.x * g_width,
+			p2.y * g_height,
+			p3.x * g_width,
+			p3.y * g_height,
+			c1,
+			c2,
+			c3,
+			textureId);
+		break;
+	case DrawMode::Flat:
+		break;
+	case DrawMode::Wireframe:
+		DrawLine(Vec3(p1.x, p1.y, p1.z), Vec3(p2.x, p2.y, p2.z), c1);
+		DrawLine(Vec3(p2.x, p2.y, p2.z), Vec3(p3.x, p3.y, p3.z), c2);
+		DrawLine(Vec3(p3.x, p3.y, p3.z), Vec3(p1.x, p1.y, p1.z), c3);
+		break;
+	case DrawMode::Normals:
+		break;
+	case DrawMode::UV:
+		break;
+	default:
+		break;
+	}
 }
