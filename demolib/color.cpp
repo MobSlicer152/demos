@@ -18,6 +18,18 @@ void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b)
 	b = colors[index].rgbBlue;
 }
 
+static constexpr uint32_t COLORTAB_BITS = 6;
+static constexpr uint32_t COLORTAB_SHIFT = 8 - COLORTAB_BITS;
+static constexpr uint32_t COLORTAB_PERCOLOR = (1 << COLORTAB_BITS);
+// RGB555 -> palette table
+static BYTE s_colorTable[COLORTAB_PERCOLOR * COLORTAB_PERCOLOR * COLORTAB_PERCOLOR];
+
+BYTE FindNearestColor(BYTE r, BYTE g, BYTE b)
+{
+	return s_colorTable
+		[((r >> COLORTAB_SHIFT) << (2 * COLORTAB_BITS)) | ((g >> COLORTAB_SHIFT) << COLORTAB_BITS) | (b >> COLORTAB_SHIFT)];
+}
+
 void InitStandardPalette()
 {
 	// first 32 are shades
@@ -44,6 +56,35 @@ void InitStandardPalette()
 	row(1, 1);
 	row(1, 2);
 	row(1, 3);
-	row(1, 4);
-	row(1, 5);
+	row(1, 6);
+	row(1, 8);
+}
+
+void InitColorTable()
+{
+#pragma omp parallel for collapse(4)
+	for (int r = 0; r < COLORTAB_PERCOLOR; r++)
+	{
+		for (int g = 0; g < COLORTAB_PERCOLOR; g++)
+		{
+			for (int b = 0; b < COLORTAB_PERCOLOR; b++)
+			{
+				uint32_t lastDist = UINT32_MAX;
+				for (int c = 0; c < PALETTE_SIZE; c++)
+				{
+					BYTE cr, cg, cb;
+					GetColor((BYTE)c, cr, cg, cb);
+					cr >>= COLORTAB_SHIFT;
+					cg >>= COLORTAB_SHIFT;
+					cb >>= COLORTAB_SHIFT;
+					uint32_t dist = abs(cr - r) + abs(cg - g) + abs(cb - b);
+					if (dist < lastDist)
+					{
+						lastDist = dist;
+						s_colorTable[(r << (2 * COLORTAB_BITS)) | (g << COLORTAB_BITS) | b] = c;
+					}
+				}
+			}
+		}
+	}
 }

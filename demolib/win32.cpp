@@ -130,12 +130,13 @@ extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list ar
 }
 
 // calculates similar colors for dithering
-extern void CalcDitherColors();
+extern void InitColorTable();
 
 static void InitFramebuffer()
 {
 	auto dc = GetDC(g_wnd);
 	InitPalette();
+	InitColorTable();
 
 	auto& header = g_bitmapInfo->bmiHeader;
 	header.biSize = sizeof(BITMAPINFOHEADER);
@@ -182,7 +183,7 @@ static void WindowLoop()
 
 		if (g_autoClear)
 		{
-			memset(g_framebuffer, g_clearColor, g_fbStride * g_height);
+			DrawRectangle(Vec2(0.0f), Vec2(1.0f), g_clearColor);
 		}
 
 		DrawDemo();

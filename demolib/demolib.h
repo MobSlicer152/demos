@@ -27,7 +27,7 @@ extern uint32_t g_height;
 extern float g_aspect;
 extern RECT g_wndRect;
 
-#define PALETTE_SIZE			 256
+#define PALETTE_SIZE			 255
 #define STANDARD_PALETTE_COLUMNS 32
 #define STANDARD_PALETTE_ROWS 8
 #define STANDARD_COLOR(row, col) ((row) * STANDARD_PALETTE_COLUMNS + (col))
