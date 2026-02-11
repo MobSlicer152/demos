@@ -7,5 +7,5 @@ void InitPalette()
 
 void DrawDemo()
 {
-
+	DrawPalette();
 }

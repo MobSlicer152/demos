@@ -193,9 +193,9 @@ static void WindowLoop()
 		auto dc = GetDC(g_wnd);
 		StretchDIBits(
 			dc,
-			g_width,
+			0,
 			g_height,
-			-g_width - 1,
+			g_width,
 			-g_height - 1,
 			0,
 			0,
