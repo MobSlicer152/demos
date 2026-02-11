@@ -29,7 +29,6 @@ PBYTE g_framebuffer;
 uint32_t g_fbStride;
 bool g_autoClear = true;
 BYTE g_clearColor = 0;
-BYTE g_ditherTab[DITHER_TABLE_SIZE];
 
 #define CLASSNAME "Demo1"
 
@@ -59,7 +58,7 @@ static LRESULT WINAPI WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lPara
 	return DefWindowProcA(wnd, msg, wParam, lParam);
 }
 
-static void InitWindow(int show)
+static void InitWindow()
 {
 	WNDCLASSEXA wndClass = {};
 	wndClass.cbSize = sizeof(WNDCLASSEXA);
@@ -107,8 +106,6 @@ static void InitWindow(int show)
 		auto error = GetLastError();
 		ErrorMessage(error, "failed to create window: %d\n", error);
 	}
-
-	ShowWindow(g_wnd, show);
 
 	GetClientRect(g_wnd, &g_wndRect);
 	g_width = g_wndRect.right - g_wndRect.left;
@@ -194,9 +191,9 @@ static void WindowLoop()
 		StretchDIBits(
 			dc,
 			0,
-			g_height,
+			g_height - 1,
 			g_width,
-			-g_height - 1,
+			-g_height,
 			0,
 			0,
 			g_width,
@@ -219,10 +216,14 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 	g_inst = inst;
 	g_cmdline = cmdline;
 
-	InitWindow(show);
+	_putenv("OMP_WAIT_POLICY=PASSIVE");
+
+	InitWindow();
 	InitFramebuffer();
+	ShowWindow(g_wnd, show);
 	WindowLoop();
 	DestroyWindow(g_wnd);
+	ExitProcess(0);
 }
 
 #ifdef _DEBUG

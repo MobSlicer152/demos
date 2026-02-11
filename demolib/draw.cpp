@@ -26,10 +26,10 @@ void DrawPalette(uint32_t width, uint32_t height, uint32_t xi, uint32_t yi, uint
 
 void DrawRectangle(const Vec3& a, const Vec3& b, BYTE color)
 {
-	auto ax = (uint32_t)(a.x * g_width);
-	auto ay = (uint32_t)(a.y * g_height);
-	auto bx = (uint32_t)(b.x * g_width);
-	auto by = (uint32_t)(b.y * g_height);
+	auto ax = (uint32_t)(std::min(a.x, b.x) * g_width);
+	auto ay = (uint32_t)(std::min(a.y, b.y) * g_height);
+	auto bx = (uint32_t)(std::max(a.x, b.x) * g_width);
+	auto by = (uint32_t)(std::max(a.y, b.y) * g_height);
 	for (uint32_t y = ay; y < by; y++)
 	{
 		// TODO: use memset (just needs a proper bounds check but i'm lazy)
@@ -95,10 +95,10 @@ static void RasterTriangle(
 
 	float area = TriangleArea(x1, y1, x2, y2, x3, y3);
 	//// get rid of small triangles
-	//if (area < 1)
+	// if (area < 1)
 	//{
 	//	return;
-	//}
+	// }
 
 	for (auto y = minY; y <= maxY; y++)
 	{

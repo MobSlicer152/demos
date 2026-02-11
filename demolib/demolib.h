@@ -27,8 +27,10 @@ extern uint32_t g_height;
 extern float g_aspect;
 extern RECT g_wndRect;
 
-#define PALETTE_SIZE 256
-#define DITHER_TABLE_SIZE (PALETTE_SIZE * PALETTE_SIZE)
+#define PALETTE_SIZE			 256
+#define STANDARD_PALETTE_COLUMNS 32
+#define STANDARD_PALETTE_ROWS 8
+#define STANDARD_COLOR(row, col) ((row) * STANDARD_PALETTE_COLUMNS + (col))
 
 extern HBITMAP g_bitmap;
 extern PBITMAPINFO g_bitmapInfo;
@@ -36,7 +38,6 @@ extern PBYTE g_framebuffer;
 extern uint32_t g_fbStride;
 extern bool g_autoClear;
 extern BYTE g_clearColor;
-extern BYTE g_ditherTab[DITHER_TABLE_SIZE];
 
 // demo functions, provided by individual demo
 
@@ -49,6 +50,8 @@ extern void DrawDemo();
 
 // sets a palette color
 extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b);
+extern void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b);
+extern BYTE FindNearestColor(BYTE r, BYTE g, BYTE b);
 
 // initializes a better version of roughly what mode 13h offers
 extern void InitStandardPalette();
@@ -64,8 +67,8 @@ extern void DrawPalette(
 	uint32_t height = g_height,
 	uint32_t x = 0,
 	uint32_t y = 0,
-	uint32_t perRow = 32,
-	uint32_t rows = 8);
+	uint32_t perRow = STANDARD_PALETTE_COLUMNS,
+	uint32_t rows = STANDARD_PALETTE_ROWS);
 
 // draw a rectangle
 extern void DrawRectangle(const Vec3& a, const Vec3& b, BYTE color);

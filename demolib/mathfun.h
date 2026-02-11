@@ -988,7 +988,7 @@ inline Mat4 Mat4::Look(const Transform& transform)
 	return Mat4::Rotate(transform.rotation.Inverse()) * Mat4::Translate(-transform.position);
 }
 
-static FORCEINLINE Vec4 HsvToRgb(Vec4 hsv)
+static FORCEINLINE Vec4 HsvToRgb(const Vec4& hsv)
 {
 	float c = hsv.v * hsv.s;
 	float x = c * (1 - abs(fmodf(hsv.h / (PI / 3), 2) - 1));
@@ -1021,4 +1021,40 @@ static FORCEINLINE Vec4 HsvToRgb(Vec4 hsv)
 	}
 	rgb += Vec4(Vec3(m), 0.0);
 	return rgb;
+}
+
+static FORCEINLINE Vec4 RgbToHsv(const Vec4& rgb)
+{
+	float cMin = std::min(rgb.r, std::min(rgb.g, rgb.b));
+	float cMax = std::max(rgb.r, std::max(rgb.g, rgb.b));
+	float d = cMax - cMin;
+
+	Vec4 hsv(0.0, 0.0, cMax, rgb.a);
+	if (FloatEqual(d, 0.0f))
+	{
+		hsv.h = 0.0f;
+	}
+	else if (FloatEqual(cMax, rgb.r))
+	{
+		hsv.h = (PI / 3) * fmodf((rgb.g - rgb.b) / d, 6.0f);
+	}
+	else if (FloatEqual(cMax, rgb.g))
+	{
+		hsv.h = (PI / 3) * ((rgb.b - rgb.r) / d + 2.0f);
+	}
+	else if (FloatEqual(cMax, rgb.b))
+	{
+		hsv.h = (PI / 3) * ((rgb.r - rgb.g) / d + 4.0f);
+	}
+
+	if (FloatEqual(cMax, 0.0f))
+	{
+		hsv.s = 0.0f;
+	}
+	else
+	{
+		hsv.s = d / cMax;
+	}
+
+	return hsv;
 }
