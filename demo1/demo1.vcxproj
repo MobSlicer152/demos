@@ -104,7 +104,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);ntdll.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -130,8 +131,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);ntdll.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/TINYHEADER /TRANSFORM:CALLS /TRUNCATEFLOATS /UNALIGNCODE /CRINKLER /COMPMODE:SLOW /PROGRESSGUI %(AdditionalOptions)</AdditionalOptions>
+      <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -156,7 +158,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);ntdll.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -182,7 +185,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);ntdll.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)tools\upx.exe -9 -o "$(TargetDir)\$(TargetName)_packed.exe" "$(TargetPath)"</Command>

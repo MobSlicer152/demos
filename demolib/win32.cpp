@@ -237,13 +237,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 	ExitProcess(0);
 }
 
-#ifdef _DEBUG
-#define ENTRY mainCRTStartup
-#else
-#define ENTRY WinMainCRTStartup
-#endif
-
-extern "C" void ENTRY()
+extern "C" void DemoEntry()
 {
 	WinMain(GetModuleHandleA(nullptr), nullptr, GetCommandLineA(), SW_SHOWNORMAL);
 }
