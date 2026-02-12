@@ -73,7 +73,8 @@ static constexpr uint16_t Interleave(byte a, byte b)
 extern float UniformRandom(float min, float max);
 
 // perlin noise
-extern float Noise(const Vec2& p);
+extern float Perlin(const Vec2& p, uint32_t period);
+extern float FBM(const Vec2& p, uint32_t period, uint32_t octave);
 
 // sets a palette color
 extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b);

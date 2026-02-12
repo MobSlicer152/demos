@@ -1,6 +1,7 @@
 #include "pch.h"
 
 static byte s_perlinPermutation[512];
+static Vec2 s_perlinDirs[256];
 
 void InitNoise()
 {
@@ -18,6 +19,11 @@ void InitNoise()
 	{
 		s_perlinPermutation[256 + i] = s_perlinPermutation[i];
 	}
+
+	for (int a = 0; a < 256; a++)
+	{
+		s_perlinDirs[a] = Vec2(cosf(a * 2.0f * PI / 256), sinf(a * 2.0f * PI / 256));
+	}
 }
 
 static byte GetPerm(uint32_t x)
@@ -25,58 +31,44 @@ static byte GetPerm(uint32_t x)
 	return s_perlinPermutation[x & 255];
 }
 
-static constexpr int32_t PERLIN_REPEAT = 32;
-
-static byte PerlinHash(int32_t x, int32_t y)
+static byte PerlinHash(int32_t x, int32_t y, int32_t period)
 {
-	x = (x % PERLIN_REPEAT + PERLIN_REPEAT) % PERLIN_REPEAT;
-	y = (y % PERLIN_REPEAT + PERLIN_REPEAT) % PERLIN_REPEAT;
-	return GetPerm(GetPerm(x) + y);
+	return GetPerm(GetPerm(x % period) + y % period);
 }
 
-static Vec2 GetVector(byte v)
+// just like me fr
+static float Poly(float v)
 {
-	auto h = v & 3;
-	switch (h)
+	return 1.0f - 6 * powf(v, 5) + 15 * powf(v, 4) - 10 * powf(v, 3);
+}
+
+float Perlin(const Vec2& p, uint32_t period)
+{
+	auto surflet = [&](int32_t gridX, int32_t gridY) {
+		auto distX = abs(p.x - gridX);
+		auto distY = abs(p.y - gridY);
+		auto polyX = Poly(distX);
+		auto polyY = Poly(distY);
+		auto hashed = PerlinHash(gridX, gridY, period);
+		auto grad = (p - Vec2(gridX, gridY)).Dot(s_perlinDirs[hashed]);
+		return polyX * polyY * grad;
+	};
+
+	auto intX = (int32_t)p.x;
+	auto intY = (int32_t)p.y;
+	return surflet(intX + 0, intY + 0) + surflet(intX + 1, intY + 0) + surflet(intX + 0, intY + 1) + surflet(intX + 1, intY + 1);
+}
+
+float FBM(const Vec2& p, uint32_t period, uint32_t octave)
+{
+	auto v = 0.0f;
+	float a = 1.0f;
+	float f = 1.0f;
+	for (uint32_t o = 0; o < octave; o++)
 	{
-	case 0:
-		return Vec2(1.0f, 1.0f);
-	case 1:
-		return Vec2(-1.0f, 1.0f);
-	case 2:
-		return Vec2(-1.0f, -1.0f);
-	default:
-	case 3:
-		return Vec2(1.0f, -1.0f);
+		v += a * Perlin(Vec2(p.x * f, p.y * f), period * f);
+		a *= 0.5f;
+		f *= 2.0f;
 	}
-}
-
-float Noise(const Vec2& p)
-{
-	auto x = fmodf(p.x, 1.0f);
-	auto y = fmodf(p.y, 1.0f);
-	auto xi = (int)floorf(x);
-	auto yi = (int)floorf(y);
-	float xf = x - xi;
-	float yf = y - yi;
-
-	auto tr = Vec2(xf - 1.0f, yf - 1.0f);
-	auto tl = Vec2(xf, yf - 1.0f);
-	auto br = Vec2(xf - 1.0f, yf);
-	auto bl = Vec2(xf, yf);
-
-	auto vtr = PerlinHash(xi + 1, yi + 1);
-	auto vtl = PerlinHash(xi, yi + 1);
-	auto vbr = PerlinHash(xi + 1, yi);
-	auto vbl = PerlinHash(xi, yi);
-
-	auto dtr = tr.Dot(GetVector(vtr));
-	auto dtl = tl.Dot(GetVector(vtl));
-	auto dbr = br.Dot(GetVector(vbr));
-	auto dbl = bl.Dot(GetVector(vbl));
-
-	auto u = Fade(xf);
-	auto v = Fade(yf);
-
-	return Lerp(v, Lerp(u, dbl, dtl), Lerp(u, dbr, dtr));
+	return v;
 }
