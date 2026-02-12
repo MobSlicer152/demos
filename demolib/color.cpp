@@ -19,7 +19,11 @@ void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b)
 }
 
 // bits per colour in colour table, [1..8] are allowed. more than 6 is heavy on memory and startup (>1mb and a few second delay).
+#ifdef _DEBUG
+static constexpr uint32_t COLORTAB_BITS = 6;
+#else
 static constexpr uint32_t COLORTAB_BITS = 7;
+#endif
 
 // used for conversion and measurement
 static constexpr uint32_t COLORTAB_SHIFT = 8 - COLORTAB_BITS;
