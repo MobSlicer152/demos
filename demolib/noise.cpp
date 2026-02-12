@@ -1,27 +1,36 @@
 #include "pch.h"
 
-static byte s_perlinPermutation[256];
+static byte s_perlinPermutation[512];
 
 void InitNoise()
 {
-	for (int i = 0; i < ArraySize(s_perlinPermutation); i++)
+	for (int i = 0; i < 256; i++)
 	{
 		s_perlinPermutation[i] = i;
 	}
 
-	for (int i = 0; i < ArraySize(s_perlinPermutation); i++)
+	for (int i = 255; i > 0; i--)
 	{
-		s_perlinPermutation[(byte)UniformRandom(0, ArraySize(s_perlinPermutation) - 1)] = s_perlinPermutation[i];
+		std::swap(s_perlinPermutation[(byte)UniformRandom(0, i)], s_perlinPermutation[i]);
+	}
+
+	for (int i = 0; i < 256; i++)
+	{
+		s_perlinPermutation[256 + i] = s_perlinPermutation[i];
 	}
 }
 
 static byte GetPerm(uint32_t x)
 {
-	return s_perlinPermutation[x % ArraySize(s_perlinPermutation)];
+	return s_perlinPermutation[x & 255];
 }
 
-static byte PerlinHash(uint32_t x, uint32_t y)
+static constexpr int32_t PERLIN_REPEAT = 32;
+
+static byte PerlinHash(int32_t x, int32_t y)
 {
+	x = (x % PERLIN_REPEAT + PERLIN_REPEAT) % PERLIN_REPEAT;
+	y = (y % PERLIN_REPEAT + PERLIN_REPEAT) % PERLIN_REPEAT;
 	return GetPerm(GetPerm(x) + y);
 }
 
@@ -32,22 +41,22 @@ static Vec2 GetVector(byte v)
 	{
 	case 0:
 		return Vec2(1.0f, 1.0f);
-	case 2:
+	case 1:
 		return Vec2(-1.0f, 1.0f);
-	case 3:
+	case 2:
 		return Vec2(-1.0f, -1.0f);
 	default:
-	case 4:
+	case 3:
 		return Vec2(1.0f, -1.0f);
 	}
 }
 
 float Noise(const Vec2& p)
 {
-	auto x = p.x;
-	auto y = p.y;
-	auto xi = floorf(p.x);
-	auto yi = floorf(p.y);
+	auto x = fmodf(p.x, 1.0f);
+	auto y = fmodf(p.y, 1.0f);
+	auto xi = (int)floorf(x);
+	auto yi = (int)floorf(y);
 	float xf = x - xi;
 	float yf = y - yi;
 
@@ -56,10 +65,10 @@ float Noise(const Vec2& p)
 	auto br = Vec2(xf - 1.0f, yf);
 	auto bl = Vec2(xf, yf);
 
-	auto vtr = PerlinHash(x + 1, y + 1);
-	auto vtl = PerlinHash(x, y + 1);
-	auto vbr = PerlinHash(x + 1, y);
-	auto vbl = PerlinHash(x, y);
+	auto vtr = PerlinHash(xi + 1, yi + 1);
+	auto vtl = PerlinHash(xi, yi + 1);
+	auto vbr = PerlinHash(xi + 1, yi);
+	auto vbl = PerlinHash(xi, yi);
 
 	auto dtr = tr.Dot(GetVector(vtr));
 	auto dtl = tl.Dot(GetVector(vtl));
@@ -69,5 +78,5 @@ float Noise(const Vec2& p)
 	auto u = Fade(xf);
 	auto v = Fade(yf);
 
-	return Lerp(u, Lerp(v, dbl, dtl), Lerp(v, dbr, dtr));
+	return Lerp(v, Lerp(u, dbl, dtl), Lerp(u, dbr, dtr));
 }

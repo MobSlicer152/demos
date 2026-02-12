@@ -13,7 +13,8 @@ void DrawDemo()
 		{
 			auto xf = (float)x / FRAMEBUFFER_WIDTH;
 			auto yf = (float)y / FRAMEBUFFER_HEIGHT;
-			float n = Noise(Vec2(xf * (sinf(g_elapsed) + 1.0f) * 0.5f, yf * 0.5f));
+			auto f = 3.0f;
+			float n = Noise(Vec2(f * xf + ((sinf(g_elapsed) + 1.0f) * 0.5f), f * yf + (cosf(g_elapsed) + 1.0f) * 0.5f));
 			SetPixel(x, y, Vec4(xf * n, 0.0f, yf * n, 0.0f));
 		}
 	}

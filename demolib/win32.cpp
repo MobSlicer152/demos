@@ -32,10 +32,10 @@ BYTE g_clearColor = 0;
 
 #define CLASSNAME "Demo1"
 
+static ULONG s_randomSeed = GetTickCount64();
 float UniformRandom(float min, float max)
 {
-	static ULONG randomSeed = 0;
-	return std::clamp(((float)RtlUniform(&randomSeed) / MAXLONG) * (max - min) + min, min, max);
+	return std::clamp(((float)RtlUniform(&s_randomSeed) / MAXLONG) * (max - min) + min, min, max);
 }
 
 static LRESULT WINAPI WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
