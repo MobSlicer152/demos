@@ -1,16 +1,23 @@
 #include "demolib.h"
 #include "pch.h"
 
-void SetPixel(uint32_t x, uint32_t y, BYTE color)
+void SetPixel(uint32_t x, uint32_t y, BYTE color, bool dither)
 {
 	x = x >= g_width ? g_width - 1 : x;
 	y = y >= g_height ? g_height - 1 : y;
-	g_framebuffer[y * g_fbStride + x] = color;
+
+	BYTE c = color;
+	if (dither)
+	{
+		c = Dither(x, y, color);
+	}
+
+	g_framebuffer[y * g_fbStride + x] = c;
 }
 
-void SetPixel(float x, float y, BYTE color)
+void SetPixel(float x, float y, BYTE color, bool dither)
 {
-	SetPixel((uint32_t)(x * g_width), (uint32_t)(y * g_height), color);
+	SetPixel((uint32_t)(x * g_width), (uint32_t)(y * g_height), color, dither);
 }
 
 void DrawPalette(uint32_t width, uint32_t height, uint32_t xi, uint32_t yi, uint32_t perRow, uint32_t rows)
@@ -19,7 +26,7 @@ void DrawPalette(uint32_t width, uint32_t height, uint32_t xi, uint32_t yi, uint
 	{
 		for (uint32_t x = xi; x < width; x++)
 		{
-			SetPixel(x, y, (BYTE)((float)y / height * rows) * perRow + (BYTE)((float)x / width * perRow));
+			SetPixel(x, y, (BYTE)((float)y / height * rows) * perRow + (BYTE)((float)x / width * perRow), false);
 		}
 	}
 }

@@ -48,18 +48,42 @@ extern void DrawDemo();
 
 // lib functions
 
+static constexpr uint64_t InterleaveZeros32(uint32_t input)
+{
+	uint64_t word = input;
+	word = (word ^ (word << 16)) & 0x0000ffff0000ffff;
+	word = (word ^ (word << 8)) & 0x00ff00ff00ff00ff;
+	word = (word ^ (word << 4)) & 0x0f0f0f0f0f0f0f0f;
+	word = (word ^ (word << 2)) & 0x3333333333333333;
+	word = (word ^ (word << 1)) & 0x5555555555555555;
+	return word;
+}
+
+static constexpr uint64_t Interleave32(uint32_t a, uint32_t b)
+{
+	return InterleaveZeros32(a) | (InterleaveZeros32(b) << 1);
+}
+
+static constexpr uint32_t Reverse32(uint32_t x)
+{
+	return ((x * 0x0802LU & 0x22110LU) | (x * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+}
+
 // sets a palette color
 extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b);
 extern void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b);
 extern BYTE FindNearestColor(BYTE r, BYTE g, BYTE b);
 
+// dither a color
+extern BYTE Dither(uint32_t x, uint32_t y, BYTE color);
+
 // initializes a better version of roughly what mode 13h offers
 extern void InitStandardPalette();
 
 // set a pixel
-extern void SetPixel(uint32_t x, uint32_t y, BYTE color);
+extern void SetPixel(uint32_t x, uint32_t y, BYTE color, bool dither = true);
 // set a pixel but 0..1 instead of 0..g_width/height
-extern void SetPixel(float x, float y, BYTE color);
+extern void SetPixel(float x, float y, BYTE color, bool dither = true);
 
 // draw the palette
 extern void DrawPalette(
