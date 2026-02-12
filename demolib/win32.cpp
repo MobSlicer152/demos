@@ -32,6 +32,12 @@ BYTE g_clearColor = 0;
 
 #define CLASSNAME "Demo1"
 
+float UniformRandom(float min, float max)
+{
+	static ULONG randomSeed = 0;
+	return std::clamp(((float)RtlUniform(&randomSeed) / MAXLONG) * (max - min) + min, min, max);
+}
+
 static LRESULT WINAPI WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -129,14 +135,9 @@ extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list ar
 	ExitProcess(code);
 }
 
-// calculates similar colors for dithering
-extern void InitColorTable();
-
 static void InitFramebuffer()
 {
 	auto dc = GetDC(g_wnd);
-	InitPalette();
-	InitColorTable();
 
 	auto& header = g_bitmapInfo->bmiHeader;
 	header.biSize = sizeof(BITMAPINFOHEADER);
@@ -212,6 +213,12 @@ static void WindowLoop()
 	}
 }
 
+// calculates similar colors for dithering
+extern void InitColorTable();
+
+// generates perlin permutation table
+extern void InitNoise();
+
 int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 {
 	g_inst = inst;
@@ -220,7 +227,10 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 	_putenv("OMP_WAIT_POLICY=PASSIVE");
 
 	InitWindow();
+	InitPalette();
+	InitColorTable();
 	InitFramebuffer();
+	InitNoise();
 	ShowWindow(g_wnd, show);
 	WindowLoop();
 	DestroyWindow(g_wnd);

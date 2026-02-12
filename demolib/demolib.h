@@ -69,6 +69,12 @@ static constexpr uint16_t Interleave(byte a, byte b)
 					  ((b * 0x0101010101010101ULL & 0x8040201008040201ULL) * 0x0102040810204081ULL >> 48) & 0xAAAA);
 }
 
+// generate a uniform random number between min and max
+extern float UniformRandom(float min, float max);
+
+// perlin noise
+extern float Noise(const Vec2& p);
+
 // sets a palette color
 extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b);
 extern void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b);
@@ -86,7 +92,7 @@ extern void SetPixel(uint32_t x, uint32_t y, BYTE color);
 // set a pixel to an approximation of an rgb color
 extern void SetPixel(uint32_t x, uint32_t y, const Vec4& color, bool dither = true);
 // set a pixel but 0..1 instead of 0..g_width/height
-extern void SetPixel(float x, float y, const Vec4& color, bool dither = true);
+extern void SetPixel(const Vec2& p, const Vec4& color, bool dither = true);
 
 // draw the palette
 extern void DrawPalette(

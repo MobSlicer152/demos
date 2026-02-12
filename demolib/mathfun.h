@@ -1077,3 +1077,14 @@ static FORCEINLINE Vec4 RgbToHsv(const Vec4& rgb)
 
 	return hsv;
 }
+
+static constexpr float Fade(float t)
+{
+	return ((6 * t - 15) * t + 10) * t * t * t;
+}
+
+template <typename T>
+static constexpr T Lerp(T v0, T v1, T t)
+{
+	return v0 + t * (v1 - v0);
+}

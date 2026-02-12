@@ -208,6 +208,7 @@
     <ClCompile Include="color.cpp" />
     <ClCompile Include="crt.cpp" />
     <ClCompile Include="md2.cpp" />
+    <ClCompile Include="noise.cpp" />
     <ClCompile Include="win32.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="pch.cpp">

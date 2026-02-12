@@ -2,16 +2,6 @@
 
 void InitPalette()
 {
-	//for (uint32_t y = 0; y < STANDARD_PALETTE_ROWS; y++)
-	//{
-	//	for (uint32_t x = 0; x < STANDARD_PALETTE_COLUMNS; x++)
-	//	{
-	//		float r = (float)x / STANDARD_PALETTE_COLUMNS;
-	//		float b = (float)y / STANDARD_PALETTE_ROWS;
-	//		float g = 0.0f;
-	//		SetColor(y * STANDARD_PALETTE_COLUMNS + x, r * 255, g * 255, b * 255);
-	//	}
-	//}
 	InitStandardPalette();
 }
 
@@ -21,7 +11,10 @@ void DrawDemo()
 	{
 		for (uint32_t x = 0; x < FRAMEBUFFER_WIDTH; x++)
 		{
-			SetPixel(x, y, Vec4((float)x / FRAMEBUFFER_WIDTH, 0, (float)y / FRAMEBUFFER_HEIGHT, 0.0f));
+			auto xf = (float)x / FRAMEBUFFER_WIDTH;
+			auto yf = (float)y / FRAMEBUFFER_HEIGHT;
+			float n = Noise(Vec2(xf * (sinf(g_elapsed) + 1.0f) * 0.5f, yf * 0.5f));
+			SetPixel(x, y, Vec4(xf * n, 0.0f, yf * n, 0.0f));
 		}
 	}
 	//DrawPalette();

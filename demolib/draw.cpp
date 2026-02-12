@@ -26,7 +26,7 @@ void DrawPalette(uint32_t width, uint32_t height, uint32_t xi, uint32_t yi, uint
 	{
 		for (uint32_t x = xi; x < width; x++)
 		{
-			SetPixel(x, y, (BYTE)((float)y / height * rows) * perRow + (BYTE)((float)x / width * perRow), false);
+			SetPixel(x, y, (BYTE)((float)y / height * rows) * perRow + (BYTE)((float)x / width * perRow));
 		}
 	}
 }
@@ -104,10 +104,10 @@ static void RasterTriangle(
 	const Vec4& c3,
 	uint32_t textureId)
 {
-	auto minX = std::min(x1, std::min(x2, x3));
-	auto minY = std::min(y1, std::min(y2, y3));
-	auto maxX = std::max(x1, std::max(x2, x3));
-	auto maxY = std::max(y1, std::max(y2, y3));
+	auto minX = (uint32_t)std::min(x1, std::min(x2, x3));
+	auto minY = (uint32_t)std::min(y1, std::min(y2, y3));
+	auto maxX = (uint32_t)std::max(x1, std::max(x2, x3));
+	auto maxY = (uint32_t)std::max(y1, std::max(y2, y3));
 
 	float area = TriangleArea(x1, y1, x2, y2, x3, y3);
 	//// get rid of small triangles
@@ -116,9 +116,9 @@ static void RasterTriangle(
 	//	return;
 	// }
 
-	for (auto y = minY; y <= maxY; y++)
+	for (uint32_t y = minY; y <= maxY; y++)
 	{
-		for (auto x = minX; x <= maxX; x++)
+		for (uint32_t x = minX; x <= maxX; x++)
 		{
 			float a = TriangleArea(x, y, x2, y2, x3, y3) / area;
 			float b = TriangleArea(x, y, x3, y3, x1, y1) / area;
@@ -128,7 +128,7 @@ static void RasterTriangle(
 				continue;
 			}
 
-			SetPixel((uint32_t)x, (uint32_t)y, c1);
+			SetPixel(x, y, c1);
 		}
 	}
 }

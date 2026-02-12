@@ -1,6 +1,6 @@
 #include "pch.h"
 
-void SetColor(BYTE index, BYTE r, BYTE g, BYTE b)
+void SetColor(byte index, byte r, byte g, byte b)
 {
 	// index = index % PALETTE_SIZE;
 	auto& colors = g_bitmapInfo->bmiColors;
@@ -9,7 +9,7 @@ void SetColor(BYTE index, BYTE r, BYTE g, BYTE b)
 	colors[index].rgbBlue = b;
 }
 
-void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b)
+void GetColor(byte index, byte& r, byte& g, byte& b)
 {
 	// index = index % PALETTE_SIZE;
 	auto& colors = g_bitmapInfo->bmiColors;
@@ -30,26 +30,26 @@ static constexpr uint32_t COLORTAB_SHIFT = 8 - COLORTAB_BITS;
 static constexpr uint32_t COLORTAB_PERCOLOR = (1 << COLORTAB_BITS);
 
 // get the index of a 24-bit colour
-static constexpr uint32_t COLORTAB_INDEX(BYTE r, BYTE g, BYTE b)
+static constexpr uint32_t COLORTAB_INDEX(byte r, byte g, byte b)
 {
 	return ((r >> COLORTAB_SHIFT) << (2 * COLORTAB_BITS)) | ((g >> COLORTAB_SHIFT) << COLORTAB_BITS) | (b >> COLORTAB_SHIFT);
 }
 
 // RGBxxx -> palette table
-static BYTE s_colorTable[COLORTAB_PERCOLOR * COLORTAB_PERCOLOR * COLORTAB_PERCOLOR];
+static byte s_colorTable[COLORTAB_PERCOLOR * COLORTAB_PERCOLOR * COLORTAB_PERCOLOR];
 
-BYTE FindNearestColor(BYTE r, BYTE g, BYTE b)
+byte FindNearestColor(byte r, byte g, byte b)
 {
 	return s_colorTable[COLORTAB_INDEX(r, g, b)];
 }
 
-BYTE FindNearestColor(const Vec4& color)
+byte FindNearestColor(const Vec4& color)
 {
 	return s_colorTable[COLORTAB_INDEX(color.r * 255, color.g * 255, color.b * 255)];
 }
 
-static constexpr int BAYER_SIZE = 16;
-static constexpr int BAYER[BAYER_SIZE][BAYER_SIZE] = {
+static constexpr byte BAYER_SIZE = 16;
+static constexpr byte BAYER[BAYER_SIZE][BAYER_SIZE] = {
 	{0, 128, 32, 160, 8, 136, 40, 168, 2, 130, 34, 162, 10, 138, 42, 170},
 	{192, 64, 224, 96, 200, 72, 232, 104, 194, 66, 226, 98, 202, 74, 234, 106},
 	{48, 176, 16, 144, 56, 184, 24, 152, 50, 178, 18, 146, 58, 186, 26, 154},
@@ -74,15 +74,15 @@ static float BayerMatrix(uint32_t x, uint32_t y)
 	return (float)BAYER[i][j] / (BAYER_SIZE * BAYER_SIZE);
 }
 
-BYTE Dither(uint32_t x, uint32_t y, const Vec4& color)
+byte Dither(uint32_t x, uint32_t y, const Vec4& color)
 {
 	static constexpr float R = 8.0f * 1.0f / (COLORTAB_PERCOLOR - 1);
 
 	float bayer = BayerMatrix(x, y) - 0.5f;
 	float dither = R * bayer;
-	BYTE r = std::clamp<int>(roundf((color.r + dither) * 255), 0, 255);
-	BYTE g = std::clamp<int>(roundf((color.g + dither) * 255), 0, 255);
-	BYTE b = std::clamp<int>(roundf((color.b + dither) * 255), 0, 255);
+	byte r = std::clamp<int>(roundf((color.r + dither) * 255), 0, 255);
+	byte g = std::clamp<int>(roundf((color.g + dither) * 255), 0, 255);
+	byte b = std::clamp<int>(roundf((color.b + dither) * 255), 0, 255);
 	return FindNearestColor(r, g, b);
 }
 
@@ -94,7 +94,7 @@ void InitStandardPalette()
 	// dont need any hsv for this
 	for (; i < STANDARD_PALETTE_COLUMNS; i++)
 	{
-		static constexpr auto F = MAXBYTE / STANDARD_PALETTE_COLUMNS;
+		static constexpr auto F = UINT8_MAX / STANDARD_PALETTE_COLUMNS;
 		SetColor(i, i * F, i * F, i * F);
 	}
 
@@ -102,7 +102,7 @@ void InitStandardPalette()
 		for (int h = 0; h < STANDARD_PALETTE_COLUMNS; h++)
 		{
 			Vec4 c = HsvToRgb(Vec4(h * (PI / STANDARD_PALETTE_COLUMNS * 2.0f), 1.0f / s, 1.0f / v, 1.0f)) * 255;
-			SetColor(i, (BYTE)c.r, (BYTE)c.g, (BYTE)c.b);
+			SetColor(i, (byte)c.r, (byte)c.g, (byte)c.b);
 			i++;
 		}
 	};
@@ -117,7 +117,7 @@ void InitStandardPalette()
 
 void InitColorTable()
 {
-#pragma omp parallel for collapse(4)
+#pragma omp parallel for collapse(3)
 	for (int r = 0; r < COLORTAB_PERCOLOR; r++)
 	{
 		for (int g = 0; g < COLORTAB_PERCOLOR; g++)
@@ -128,8 +128,8 @@ void InitColorTable()
 				// this loop runs COLORTAB_PERCOLOR^3 * PALETTE_SIZE times, or roughly 66 million times
 				for (int c = 0; c < PALETTE_SIZE; c++)
 				{
-					BYTE cr, cg, cb;
-					GetColor((BYTE)c, cr, cg, cb);
+					byte cr, cg, cb;
+					GetColor((byte)c, cr, cg, cb);
 					auto dr = cr - (r << COLORTAB_SHIFT);
 					auto dg = cg - (g << COLORTAB_SHIFT);
 					auto db = cb - (b << COLORTAB_SHIFT);
