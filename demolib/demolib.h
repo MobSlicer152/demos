@@ -19,7 +19,7 @@ extern float g_elapsed;
 extern int g_targetFps;
 
 #define DEFAULT_TARGET_FPS 60
-#define FRAMEBUFFER_WIDTH 640
+#define FRAMEBUFFER_WIDTH  640
 #define FRAMEBUFFER_HEIGHT 480
 
 extern ATOM g_wndClass;
@@ -31,7 +31,7 @@ extern RECT g_wndRect;
 
 #define PALETTE_SIZE			 255
 #define STANDARD_PALETTE_COLUMNS 16
-#define STANDARD_PALETTE_ROWS 16
+#define STANDARD_PALETTE_ROWS	 16
 #define STANDARD_COLOR(row, col) ((row) * STANDARD_PALETTE_COLUMNS + (col))
 
 extern HBITMAP g_bitmap;
@@ -49,6 +49,25 @@ extern void InitPalette();
 extern void DrawDemo();
 
 // lib functions
+
+static constexpr byte Reverse(byte b)
+{
+	b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+	b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+	b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+	return b;
+}
+
+static constexpr uint16_t Reverse(uint16_t w)
+{
+	return ((uint16_t)Reverse((byte)(w & 0xFF)) << 8) | Reverse((byte)(w >> 8));
+}
+
+static constexpr uint16_t Interleave(byte a, byte b)
+{
+	return (uint16_t)(((a * 0x0101010101010101ULL & 0x8040201008040201ULL) * 0x0102040810204081ULL >> 49) & 0x5555 |
+					  ((b * 0x0101010101010101ULL & 0x8040201008040201ULL) * 0x0102040810204081ULL >> 48) & 0xAAAA);
+}
 
 // sets a palette color
 extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b);
