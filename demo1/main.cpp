@@ -24,4 +24,5 @@ void DrawDemo()
 			SetPixel(x, y, FindNearestColor((float)x / FRAMEBUFFER_WIDTH * MAXBYTE, 0, (float)y / FRAMEBUFFER_HEIGHT * MAXBYTE));
 		}
 	}
+	//DrawPalette();
 }

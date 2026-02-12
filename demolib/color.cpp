@@ -19,7 +19,7 @@ void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b)
 }
 
 // bits per colour in colour table, [1..8] are allowed. more than 6 is heavy on memory and startup (>1mb and a few second delay).
-static constexpr uint32_t COLORTAB_BITS = 6;
+static constexpr uint32_t COLORTAB_BITS = 7;
 
 // used for conversion and measurement
 static constexpr uint32_t COLORTAB_SHIFT = 8 - COLORTAB_BITS;
@@ -85,7 +85,9 @@ void InitStandardPalette()
 	
 	for (uint32_t r = 0; r < 15; r++)
 	{
-		row(1.0f + logf(r + 1.0f) * 0.25f, 1.0f + r * 0.3f);
+		// saturation only goes down (1 + ln(r + 1) / 4), value goes down 1 + r / 3
+		// value wraps around for last two rows to get some brighter desaturated colours
+		row(1.0f + logf(r + 1.0f) * 0.25f, 1.0f + fmodf(r * 0.3f, 3.5f));
 	}
 }
 
