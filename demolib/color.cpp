@@ -64,32 +64,29 @@ BYTE Dither(uint32_t x, uint32_t y, BYTE color)
 
 void InitStandardPalette()
 {
+	int i = 0;
+
 	// first 16 are shades
 	// dont need any hsv for this
-	for (int v = 0; v < 16; v++)
+	for (; i < STANDARD_PALETTE_COLUMNS; i++)
 	{
-		SetColor(v, v * 16, v * 16, v * 16);
+		static constexpr auto F = MAXBYTE / STANDARD_PALETTE_COLUMNS;
+		SetColor(i, i * F, i * F, i * F);
 	}
 	
-	// can do 7 more rows. 5 for different value, 2 for different saturation
-	
-	int i = 16;
 	auto row = [&](float s, float v) {
-		for (int h = 0; h < 16; h++)
+		for (int h = 0; h < STANDARD_PALETTE_COLUMNS; h++)
 		{
-			Vec4 c = HsvToRgb(Vec4(h * (PI / 16), 1.0f / s, 1.0f / v, 1.0f)) * 255;
+			Vec4 c = HsvToRgb(Vec4(h * (PI / STANDARD_PALETTE_COLUMNS * 2.0f), 1.0f / s, 1.0f / v, 1.0f)) * 255;
 			SetColor(i, (BYTE)c.r, (BYTE)c.g, (BYTE)c.b);
 			i++;
 		}
 	};
 	
-	row(1.0f, 1.0f);
-	row(1.0f, 1.0f);
-	row(1.0f, 1.5f);
-	row(1.1f, 2.0f);
-	row(1.1f, 3.5f);
-	row(1.1f, 5.0f);
-	row(1.1f, 8.0f);
+	for (uint32_t r = 0; r < 15; r++)
+	{
+		row(1.0f + logf(r + 1.0f) * 0.25f, 1.0f + r * 0.3f);
+	}
 }
 
 void InitColorTable()
