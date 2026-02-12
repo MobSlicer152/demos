@@ -1,21 +1,21 @@
 #include "demolib.h"
 #include "pch.h"
 
-void SetPixel(uint32_t x, uint32_t y, BYTE color, bool dither)
+void SetPixel(uint32_t x, uint32_t y, BYTE color)
 {
 	x = x >= FRAMEBUFFER_WIDTH ? FRAMEBUFFER_WIDTH - 1 : x;
 	y = y >= FRAMEBUFFER_HEIGHT ? FRAMEBUFFER_HEIGHT - 1 : y;
 
-	BYTE c = color;
-	if (dither)
-	{
-		c = Dither(x, y, color);
-	}
-
-	g_framebuffer[y * g_fbStride + x] = c;
+	g_framebuffer[y * g_fbStride + x] = color;
 }
 
-void SetPixel(float x, float y, BYTE color, bool dither)
+void SetPixel(uint32_t x, uint32_t y, const Vec4& color, bool dither)
+{
+	BYTE c = dither ? Dither(x, y, color) : FindNearestColor(color);
+	SetPixel(x, y, c);
+}
+
+void SetPixel(float x, float y, const Vec4& color, bool dither)
 {
 	SetPixel((uint32_t)(x * FRAMEBUFFER_WIDTH), (uint32_t)(y * FRAMEBUFFER_HEIGHT), color, dither);
 }
@@ -31,7 +31,7 @@ void DrawPalette(uint32_t width, uint32_t height, uint32_t xi, uint32_t yi, uint
 	}
 }
 
-void DrawRectangle(const Vec3& a, const Vec3& b, BYTE color)
+void DrawRectangle(const Vec3& a, const Vec3& b, const Vec4& color)
 {
 	auto ax = (uint32_t)(std::min(a.x, b.x) * FRAMEBUFFER_WIDTH);
 	auto ay = (uint32_t)(std::min(a.y, b.y) * FRAMEBUFFER_HEIGHT);
@@ -47,7 +47,7 @@ void DrawRectangle(const Vec3& a, const Vec3& b, BYTE color)
 	}
 }
 
-void DrawLine(const Vec3& start, const Vec3& end, BYTE color)
+void DrawLine(const Vec3& start, const Vec3& end, const Vec4& color)
 {
 	auto x0 = (int32_t)(start.x * FRAMEBUFFER_WIDTH);
 	auto y0 = (int32_t)(start.y * FRAMEBUFFER_HEIGHT);
@@ -93,7 +93,16 @@ static float TriangleArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_
 }
 
 static void RasterTriangle(
-	int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, BYTE c1, BYTE c2, BYTE c3, uint32_t textureId)
+	int32_t x1,
+	int32_t y1,
+	int32_t x2,
+	int32_t y2,
+	int32_t x3,
+	int32_t y3,
+	const Vec4& c1,
+	const Vec4& c2,
+	const Vec4& c3,
+	uint32_t textureId)
 {
 	auto minX = std::min(x1, std::min(x2, x3));
 	auto minY = std::min(y1, std::min(y2, y3));
@@ -124,7 +133,15 @@ static void RasterTriangle(
 	}
 }
 
-void DrawTriangle(const Vec4& p1, const Vec4& p2, const Vec4& p3, BYTE c1, BYTE c2, BYTE c3, DrawMode mode, uint32_t textureId)
+void DrawTriangle(
+	const Vec4& p1,
+	const Vec4& p2,
+	const Vec4& p3,
+	const Vec4& c1,
+	const Vec4& c2,
+	const Vec4& c3,
+	DrawMode mode,
+	uint32_t textureId)
 {
 	switch (mode)
 	{

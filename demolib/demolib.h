@@ -43,7 +43,7 @@ extern BYTE g_clearColor;
 
 // demo functions, provided by individual demo
 
-// here you initialize your palette, or call InitStandardPalette for a mode 13h-esque palette
+// here you initialize your palette, or call InitStandardPalette for a solid palette
 extern void InitPalette();
 // here, you draw the current frame of your demo
 extern void DrawDemo();
@@ -54,17 +54,20 @@ extern void DrawDemo();
 extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b);
 extern void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b);
 extern BYTE FindNearestColor(BYTE r, BYTE g, BYTE b);
+extern BYTE FindNearestColor(const Vec4& color);
 
 // dither a color
-extern BYTE Dither(uint32_t x, uint32_t y, BYTE color);
+extern BYTE Dither(uint32_t x, uint32_t y, const Vec4& color);
 
-// initializes a better version of roughly what mode 13h offers
+// initializes a palette with a decent range of hsv values
 extern void InitStandardPalette();
 
-// set a pixel
-extern void SetPixel(uint32_t x, uint32_t y, BYTE color, bool dither = true);
+// set a pixel to a palette color
+extern void SetPixel(uint32_t x, uint32_t y, BYTE color);
+// set a pixel to an approximation of an rgb color
+extern void SetPixel(uint32_t x, uint32_t y, const Vec4& color, bool dither = true);
 // set a pixel but 0..1 instead of 0..g_width/height
-extern void SetPixel(float x, float y, BYTE color, bool dither = true);
+extern void SetPixel(float x, float y, const Vec4& color, bool dither = true);
 
 // draw the palette
 extern void DrawPalette(
@@ -76,10 +79,10 @@ extern void DrawPalette(
 	uint32_t rows = STANDARD_PALETTE_ROWS);
 
 // draw a rectangle
-extern void DrawRectangle(const Vec3& a, const Vec3& b, BYTE color);
+extern void DrawRectangle(const Vec3& a, const Vec3& b, const Vec4& color);
 
 // draw a line
-extern void DrawLine(const Vec3& start, const Vec3& end, BYTE color);
+extern void DrawLine(const Vec3& start, const Vec3& end, const Vec4& color);
 
 // different modes of drawing
 enum class DrawMode
@@ -98,9 +101,9 @@ extern void DrawTriangle(
 	const Vec4& p1,
 	const Vec4& p2,
 	const Vec4& p3,
-	BYTE c1 = 31,
-	BYTE c2 = 31,
-	BYTE c3 = 31,
+	const Vec4& c1,
+	const Vec4& c2,
+	const Vec4& c3,
 	DrawMode mode = DrawMode::Shaded,
 	uint32_t textureId = INVALID_TEXTURE_ID);
 

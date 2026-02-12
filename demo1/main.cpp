@@ -21,7 +21,7 @@ void DrawDemo()
 	{
 		for (uint32_t x = 0; x < FRAMEBUFFER_WIDTH; x++)
 		{
-			SetPixel(x, y, FindNearestColor((float)x / FRAMEBUFFER_WIDTH * MAXBYTE, 0, (float)y / FRAMEBUFFER_HEIGHT * MAXBYTE));
+			SetPixel(x, y, Vec4((float)x / FRAMEBUFFER_WIDTH, 0, (float)y / FRAMEBUFFER_HEIGHT, 0.0f));
 		}
 	}
 	//DrawPalette();

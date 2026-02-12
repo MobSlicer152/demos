@@ -43,6 +43,11 @@ BYTE FindNearestColor(BYTE r, BYTE g, BYTE b)
 	return s_colorTable[COLORTAB_INDEX(r, g, b)];
 }
 
+BYTE FindNearestColor(const Vec4& color)
+{
+	return s_colorTable[COLORTAB_INDEX(color.r * 255, color.g * 255, color.b * 255)];
+}
+
 static constexpr Mat4 BAYER4 = Mat4(Vec4(0, 12, 3, 15), Vec4(8, 4, 11, 7), Vec4(2, 14, 1, 13), Vec4(10, 6, 9, 5)) / 16.0f;
 
 static float BayerMatrix(uint32_t x, uint32_t y)
@@ -52,17 +57,15 @@ static float BayerMatrix(uint32_t x, uint32_t y)
 	return BAYER4[j][i];
 }
 
-BYTE Dither(uint32_t x, uint32_t y, BYTE color)
+BYTE Dither(uint32_t x, uint32_t y, const Vec4& color)
 {
 	static constexpr float R = 6.7f * 255.0f / (COLORTAB_PERCOLOR - 1);
 
 	float bayer = BayerMatrix(x, y) - 0.5f;
 	float dither = R * bayer;
-	BYTE r, g, b;
-	GetColor(color, r, g, b);
-	r = std::clamp<int>(roundf(r + dither), 0, 255);
-	g = std::clamp<int>(roundf(g + dither), 0, 255);
-	b = std::clamp<int>(roundf(b + dither), 0, 255);
+	BYTE r = std::clamp<int>(roundf((color.r * 255) + dither), 0, 255);
+	BYTE g = std::clamp<int>(roundf((color.g * 255) + dither), 0, 255);
+	BYTE b = std::clamp<int>(roundf((color.b * 255) + dither), 0, 255);
 	return FindNearestColor(r, g, b);
 }
 
