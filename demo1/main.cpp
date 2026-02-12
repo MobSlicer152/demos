@@ -15,8 +15,12 @@ void DrawDemo()
 			auto xf = (float)x / FRAMEBUFFER_WIDTH;
 			auto yf = (float)y / FRAMEBUFFER_HEIGHT;
 			auto f = 3.5f;
-			float n =
-				(Perlin(Vec2(f * xf + ((sinf(g_elapsed) + 1.0f) * 0.5f), f * yf + (cosf(g_elapsed) + 1.0f) * 0.5f), 64) + 1.0f) *
+			float n = (Perlin(
+						   Vec2(
+							   f * xf + ((sinf(g_elapsed) + 1.0f) * 0.5f),
+							   f * yf + ((cosf(g_elapsed) + 1.0f) * 0.5f)),
+						   64) +
+					   1.0f) *
 				0.5f;
 			SetPixel(x, y, Vec4(xf + n, n, yf + n, 0.0f));
 		}

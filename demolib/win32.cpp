@@ -224,7 +224,10 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 	g_inst = inst;
 	g_cmdline = cmdline;
 
-	_putenv("OMP_WAIT_POLICY=PASSIVE");
+#ifdef _DEBUG
+	_putenv("OMP_DISPLAY_ENV=verbose");
+#endif
+	_putenv("OMP_WAIT_POLICY=passive");
 
 	InitWindow();
 	InitPalette();

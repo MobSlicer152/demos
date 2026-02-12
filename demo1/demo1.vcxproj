@@ -97,14 +97,16 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
       <ExceptionHandling>false</ExceptionHandling>
-      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMPSupport>
+      </OpenMPSupport>
+      <AdditionalOptions>/openmp:llvm %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;libompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
@@ -124,15 +126,16 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
       <ExceptionHandling>false</ExceptionHandling>
-      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMPSupport>
+      </OpenMPSupport>
+      <AdditionalOptions>/openmp:llvm %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/TINYHEADER /TRANSFORM:CALLS /TRUNCATEFLOATS /UNALIGNCODE /CRINKLER /COMPMODE:SLOW /PROGRESSGUI %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;libomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
@@ -151,14 +154,16 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
       <ExceptionHandling>false</ExceptionHandling>
-      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMPSupport>
+      </OpenMPSupport>
+      <AdditionalOptions>/openmp:llvm %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;libompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
@@ -178,18 +183,20 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
       <ExceptionHandling>false</ExceptionHandling>
-      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMPSupport>
+      </OpenMPSupport>
+      <AdditionalOptions>/openmp:llvm %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;libomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)tools\upx.exe -9 -o "$(TargetDir)\$(TargetName)_packed.exe" "$(TargetPath)"</Command>
+      <Command>del "$(TargetDir)\$(TargetName)_packed.exe" &amp; $(SolutionDir)tools\upx.exe -9 -o "$(TargetDir)\$(TargetName)_packed.exe" "$(TargetPath)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Packing executable</Message>

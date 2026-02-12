@@ -70,7 +70,7 @@ static constexpr uint16_t Interleave(byte a, byte b)
 }
 
 // generate a uniform random number between min and max
-extern float UniformRandom(float min, float max);
+extern float UniformRandom(float min = 0.0f, float max = 1.0f);
 
 // perlin noise
 extern float Perlin(const Vec2& p, uint32_t period);
