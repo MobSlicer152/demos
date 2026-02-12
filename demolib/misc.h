@@ -7,6 +7,8 @@
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
 
+extern "C" NTSYSAPI void NTAPI DbgPrint(const char* msg, ...);
+
 #define ASSERT_MSG(x, ...)                                                                                                       \
 	if (!(x))                                                                                                                    \
 	{                                                                                                                            \

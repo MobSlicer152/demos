@@ -140,8 +140,8 @@ static void InitFramebuffer()
 
 	auto& header = g_bitmapInfo->bmiHeader;
 	header.biSize = sizeof(BITMAPINFOHEADER);
-	header.biWidth = g_width;
-	header.biHeight = g_height;
+	header.biWidth = FRAMEBUFFER_WIDTH;
+	header.biHeight = FRAMEBUFFER_HEIGHT;
 	header.biPlanes = 1;
 	header.biBitCount = 8;
 	header.biCompression = BI_RGB;
@@ -197,8 +197,8 @@ static void WindowLoop()
 			-g_height,
 			0,
 			0,
-			g_width,
-			g_height,
+			FRAMEBUFFER_WIDTH,
+			FRAMEBUFFER_HEIGHT,
 			g_framebuffer,
 			g_bitmapInfo,
 			DIB_RGB_COLORS,

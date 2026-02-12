@@ -3,8 +3,8 @@
 
 void SetPixel(uint32_t x, uint32_t y, BYTE color, bool dither)
 {
-	x = x >= g_width ? g_width - 1 : x;
-	y = y >= g_height ? g_height - 1 : y;
+	x = x >= FRAMEBUFFER_WIDTH ? FRAMEBUFFER_WIDTH - 1 : x;
+	y = y >= FRAMEBUFFER_HEIGHT ? FRAMEBUFFER_HEIGHT - 1 : y;
 
 	BYTE c = color;
 	if (dither)
@@ -17,7 +17,7 @@ void SetPixel(uint32_t x, uint32_t y, BYTE color, bool dither)
 
 void SetPixel(float x, float y, BYTE color, bool dither)
 {
-	SetPixel((uint32_t)(x * g_width), (uint32_t)(y * g_height), color, dither);
+	SetPixel((uint32_t)(x * FRAMEBUFFER_WIDTH), (uint32_t)(y * FRAMEBUFFER_HEIGHT), color, dither);
 }
 
 void DrawPalette(uint32_t width, uint32_t height, uint32_t xi, uint32_t yi, uint32_t perRow, uint32_t rows)
@@ -33,26 +33,26 @@ void DrawPalette(uint32_t width, uint32_t height, uint32_t xi, uint32_t yi, uint
 
 void DrawRectangle(const Vec3& a, const Vec3& b, BYTE color)
 {
-	auto ax = (uint32_t)(std::min(a.x, b.x) * g_width);
-	auto ay = (uint32_t)(std::min(a.y, b.y) * g_height);
-	auto bx = (uint32_t)(std::max(a.x, b.x) * g_width);
-	auto by = (uint32_t)(std::max(a.y, b.y) * g_height);
+	auto ax = (uint32_t)(std::min(a.x, b.x) * FRAMEBUFFER_WIDTH);
+	auto ay = (uint32_t)(std::min(a.y, b.y) * FRAMEBUFFER_HEIGHT);
+	auto bx = (uint32_t)(std::max(a.x, b.x) * FRAMEBUFFER_WIDTH);
+	auto by = (uint32_t)(std::max(a.y, b.y) * FRAMEBUFFER_HEIGHT);
 	for (uint32_t y = ay; y < by; y++)
 	{
 		// TODO: use memset (just needs a proper bounds check but i'm lazy)
 		for (uint32_t x = ax; x < bx; x++)
 		{
-			SetPixel(x, y, color);
+			SetPixel(x, y, color, false);
 		}
 	}
 }
 
 void DrawLine(const Vec3& start, const Vec3& end, BYTE color)
 {
-	auto x0 = (int32_t)(start.x * g_width);
-	auto y0 = (int32_t)(start.y * g_height);
-	auto x1 = (int32_t)(end.x * g_width);
-	auto y1 = (int32_t)(end.y * g_height);
+	auto x0 = (int32_t)(start.x * FRAMEBUFFER_WIDTH);
+	auto y0 = (int32_t)(start.y * FRAMEBUFFER_HEIGHT);
+	auto x1 = (int32_t)(end.x * FRAMEBUFFER_WIDTH);
+	auto y1 = (int32_t)(end.y * FRAMEBUFFER_HEIGHT);
 
 	int32_t dx = abs(x1 - x0);
 	int32_t sx = x0 < x1 ? 1 : -1;
@@ -130,12 +130,12 @@ void DrawTriangle(const Vec4& p1, const Vec4& p2, const Vec4& p3, BYTE c1, BYTE 
 	{
 	case DrawMode::Shaded:
 		RasterTriangle(
-			p1.x * g_width,
-			p1.y * g_height,
-			p2.x * g_width,
-			p2.y * g_height,
-			p3.x * g_width,
-			p3.y * g_height,
+			p1.x * FRAMEBUFFER_WIDTH,
+			p1.y * FRAMEBUFFER_HEIGHT,
+			p2.x * FRAMEBUFFER_WIDTH,
+			p2.y * FRAMEBUFFER_HEIGHT,
+			p3.x * FRAMEBUFFER_WIDTH,
+			p3.y * FRAMEBUFFER_HEIGHT,
 			c1,
 			c2,
 			c3,

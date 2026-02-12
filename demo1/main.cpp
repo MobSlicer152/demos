@@ -2,19 +2,27 @@
 
 void InitPalette()
 {
-    InitStandardPalette();
+	for (uint32_t y = 0; y < STANDARD_PALETTE_ROWS; y++)
+	{
+		for (uint32_t x = 0; x < STANDARD_PALETTE_COLUMNS; x++)
+		{
+			float r = (float)x / STANDARD_PALETTE_COLUMNS;
+			float b = (float)y / STANDARD_PALETTE_ROWS;
+			float g = 0.0f;
+			SetColor(y * STANDARD_PALETTE_COLUMNS + x, r * 255, g * 255, b * 255);
+		}
+	}
 }
 
 void DrawDemo()
 {
-	DrawPalette();
-	//for (uint32_t y = 0; y < g_height; y++)
-	//{
-	//	for (uint32_t x = 0; x < g_width; x++)
-	//	{
-	//		SetPixel(x, y, FindNearestColor((float)x / g_width * 256, (float)y / g_height * 256, 0));
-	//	}
-	//}
-	//DrawTriangle(
-	//	Vec2(0.5, 0.0), Vec2(0.0, 1.0), Vec2(1.0, 1.0), STANDARD_COLOR(3, 5), STANDARD_COLOR(3, 15), STANDARD_COLOR(3, 20), DrawMode::Wireframe);
+	for (uint32_t y = 0; y < FRAMEBUFFER_HEIGHT; y++)
+	{
+		for (uint32_t x = 0; x < FRAMEBUFFER_WIDTH; x++)
+		{
+			SetPixel(x, y, FindNearestColor((float)x / FRAMEBUFFER_WIDTH * MAXBYTE, 0, (float)y / FRAMEBUFFER_HEIGHT * MAXBYTE));
+		}
+	}
+	auto c = FindNearestColor(135, 0, 255);
+	DrawTriangle(Vec2(0.5, 0.0), Vec2(0.0, 1.0), Vec2(1.0, 1.0), c, c, c);
 }

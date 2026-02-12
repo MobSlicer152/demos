@@ -104,7 +104,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);volatileaccessu.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);ntdll.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -130,7 +130,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);volatileaccessu.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);ntdll.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/TINYHEADER /TRANSFORM:CALLS /TRUNCATEFLOATS /UNALIGNCODE /CRINKLER /COMPMODE:SLOW /PROGRESSGUI %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -156,7 +156,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);volatileaccessu.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);ntdll.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrtd.lib;vcompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -182,7 +182,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);volatileaccessu.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);ntdll.lib;ntdll_libc.lib;legacy_stdio_definitions.lib;ucrt.lib;vcomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)tools\upx.exe -9 -o "$(TargetDir)\$(TargetName)_packed.exe" "$(TargetPath)"</Command>

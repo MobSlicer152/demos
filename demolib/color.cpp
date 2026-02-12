@@ -2,7 +2,7 @@
 
 void SetColor(BYTE index, BYTE r, BYTE g, BYTE b)
 {
-	index = index % PALETTE_SIZE;
+	//index = index % PALETTE_SIZE;
 	auto& colors = g_bitmapInfo->bmiColors;
 	colors[index].rgbRed = r;
 	colors[index].rgbGreen = g;
@@ -11,7 +11,7 @@ void SetColor(BYTE index, BYTE r, BYTE g, BYTE b)
 
 void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b)
 {
-	index = index % PALETTE_SIZE;
+	//index = index % PALETTE_SIZE;
 	auto& colors = g_bitmapInfo->bmiColors;
 	r = colors[index].rgbRed;
 	g = colors[index].rgbGreen;
@@ -39,68 +39,57 @@ BYTE FindNearestColor(BYTE r, BYTE g, BYTE b)
 	return s_colorTable[COLORTAB_INDEX(r, g, b)];
 }
 
-static constexpr uint32_t BAYER_SIZE = 4;
-static constexpr uint32_t BAYER_SQUARED_SIZE = BAYER_SIZE * BAYER_SIZE;
+static constexpr Mat4 BAYER4 = Mat4(Vec4(0, 12, 3, 15), Vec4(8, 4, 11, 7), Vec4(2, 14, 1, 13), Vec4(10, 6, 9, 5)) / 16.0f;
 
 static float BayerMatrix(uint32_t x, uint32_t y)
 {
-	auto i = x % BAYER_SIZE;
-	auto j = y % BAYER_SIZE;
-
-	return Reverse32(Interleave32(i ^ j, i)) / (float)BAYER_SQUARED_SIZE;
+	auto i = x % 4;
+	auto j = y % 4;
+	return BAYER4[j][i];
 }
 
 BYTE Dither(uint32_t x, uint32_t y, BYTE color)
 {
-	static constexpr float R = PALETTE_SIZE / (COLORTAB_BITS / 3.0f);
+	static constexpr float R = 6.7f * 255.0f / (COLORTAB_PERCOLOR - 1);
 
 	float bayer = BayerMatrix(x, y) - 0.5f;
+	float dither = R * bayer;
 	BYTE r, g, b;
-	GetColor(color + R * bayer, r, g, b);
+	GetColor(color, r, g, b);
+	r = std::clamp<int>(roundf(r + dither), 0, 255);
+	g = std::clamp<int>(roundf(g + dither), 0, 255);
+	b = std::clamp<int>(roundf(b + dither), 0, 255);
 	return FindNearestColor(r, g, b);
 }
 
 void InitStandardPalette()
 {
-	Vec3 lo = Vec3(0.0f);
-	Vec3 hi = Vec3(1.0f);
-	for (uint32_t y = 0; y < STANDARD_PALETTE_ROWS; y++)
+	// first 16 are shades
+	// dont need any hsv for this
+	for (int v = 0; v < 16; v++)
 	{
-		for (uint32_t x = 0; x < STANDARD_PALETTE_COLUMNS; x++)
-		{
-			auto p = lo.Lerp(hi, x);
-			auto q = lo.Lerp(hi, y);
-			auto c = p.Lerp(q, 0.5f);
-			SetColor(y * STANDARD_PALETTE_COLUMNS + x, c.x * 255, c.y * 255, c.z * 255);
-		}
+		SetColor(v, v * 16, v * 16, v * 16);
 	}
-
-	//// first 32 are shades
-	//// dont need any hsv for this
-	//for (int v = 0; v < 32; v++)
-	//{
-	//	SetColor(v, v * 8, v * 8, v * 8);
-	//}
-	//
-	//// can do 7 more rows. 5 for different value, 2 for different saturation
-	//
-	//int i = 32;
-	//auto row = [&](int s, int v) {
-	//	for (int h = 0; h < 32; h++)
-	//	{
-	//		Vec4 c = HsvToRgb(Vec4(h * (PI / 16), 1.0f / s, 1.0f / v, 1.0f)) * 255;
-	//		SetColor(i, (BYTE)c.r, (BYTE)c.g, (BYTE)c.b);
-	//		i++;
-	//	}
-	//};
-	//
-	//row(3, 1);
-	//row(2, 1);
-	//row(1, 1);
-	//row(1, 2);
-	//row(1, 3);
-	//row(1, 6);
-	//row(1, 8);
+	
+	// can do 7 more rows. 5 for different value, 2 for different saturation
+	
+	int i = 16;
+	auto row = [&](float s, float v) {
+		for (int h = 0; h < 16; h++)
+		{
+			Vec4 c = HsvToRgb(Vec4(h * (PI / 16), 1.0f / s, 1.0f / v, 1.0f)) * 255;
+			SetColor(i, (BYTE)c.r, (BYTE)c.g, (BYTE)c.b);
+			i++;
+		}
+	};
+	
+	row(1.0f, 1.0f);
+	row(1.0f, 1.0f);
+	row(1.0f, 1.5f);
+	row(1.1f, 2.0f);
+	row(1.1f, 3.5f);
+	row(1.1f, 5.0f);
+	row(1.1f, 8.0f);
 }
 
 void InitColorTable()
@@ -118,8 +107,10 @@ void InitColorTable()
 				{
 					BYTE cr, cg, cb;
 					GetColor((BYTE)c, cr, cg, cb);
-					uint32_t dist =
-						abs(cr - (r << COLORTAB_SHIFT)) + abs(cg - (g << COLORTAB_SHIFT)) + abs(cb - (b << COLORTAB_SHIFT));
+					auto dr = cr - (r << COLORTAB_SHIFT);
+					auto dg = cg - (g << COLORTAB_SHIFT);
+					auto db = cb - (b << COLORTAB_SHIFT);
+					uint32_t dist = dr * dr + dg * dg + db * db;
 					if (dist < lastDist)
 					{
 						lastDist = dist;

@@ -552,7 +552,7 @@ struct Vec4
 		return *this = *this * other;
 	}
 
-	Vec4 operator*(float other) const
+	constexpr Vec4 operator*(float other) const
 	{
 		return Vec4(x * other, y * other, z * other, w * other);
 	}
@@ -684,7 +684,7 @@ struct Quat
 		return Quat(v.x * s, v.y * s, v.z * s, len * c).Normalize();
 	}
 
-	//Quat(const Vec3& euler)
+	// Quat(const Vec3& euler)
 	//{
 	//	Vec3 h = euler * 0.5;
 	//	float cu = cos(h.u);
@@ -697,7 +697,7 @@ struct Quat
 	//	x = su * cv * cw - cu * sv * sw;
 	//	y = cu * sv * cw + su * cv * sw;
 	//	z = cu * cv * sw - su * sv * cw;
-	//}
+	// }
 
 	Quat operator+(const Quat& other) const
 	{
@@ -721,10 +721,11 @@ struct Quat
 
 	Quat operator*(const Quat& other) const
 	{
-		return Quat(w * other.x + x * other.w - y * other.z + z * other.y,
-					w * other.y - x * other.z + y * other.w - z * other.x,
-					w * other.z - x * other.y + y * other.x + z * other.w,
-					w * other.w - x * other.x - y * other.y - z * other.z);
+		return Quat(
+			w * other.x + x * other.w - y * other.z + z * other.y,
+			w * other.y - x * other.z + y * other.w - z * other.x,
+			w * other.z - x * other.y + y * other.x + z * other.w,
+			w * other.w - x * other.x - y * other.y - z * other.z);
 	}
 
 	Quat operator*=(const Quat& other)
@@ -815,9 +816,10 @@ struct Quat
 
 	Vec3 ToEuler() const
 	{
-		return Vec3(atan2f(2 * (w * x + y * z), w * w - x * x - y * y + z * z),
-					asinf(2 * (w * y - x * z)),
-					atan2f(2 * (w * z + x * y), w * w + x * x - y * y - z * z));
+		return Vec3(
+			atan2f(2 * (w * x + y * z), w * w - x * x - y * y + z * z),
+			asinf(2 * (w * y - x * z)),
+			atan2f(2 * (w * z + x * y), w * w + x * x - y * y - z * z));
 	}
 
 	Quat Slerp(const Quat& q1, float t) const
@@ -832,20 +834,31 @@ struct Mat4
 {
 	Vec4 columns[4];
 
-	Mat4() : Mat4(1.0f)
+	constexpr Mat4() : Mat4(1.0f)
 	{
 	}
 
-	Mat4(float value)
-		: Mat4(Vec4(value, 0.0f, 0.0f, 0.0f),
-			   Vec4(0.0f, value, 0.0f, 0.0f),
-			   Vec4(0.0f, 0.0f, value, 0.0f),
-			   Vec4(0.0f, 0.0f, 0.0f, value))
+	constexpr Mat4(float value)
+		: Mat4(
+			  Vec4(value, 0.0f, 0.0f, 0.0f),
+			  Vec4(0.0f, value, 0.0f, 0.0f),
+			  Vec4(0.0f, 0.0f, value, 0.0f),
+			  Vec4(0.0f, 0.0f, 0.0f, value))
 	{
 	}
 
-	Mat4(const Vec4& a, const Vec4& b, const Vec4& c, const Vec4& d) : columns {a, b, c, d}
+	constexpr Mat4(const Vec4& a, const Vec4& b, const Vec4& c, const Vec4& d) : columns {a, b, c, d}
 	{
+	}
+
+	constexpr Mat4 operator*(float other) const
+	{
+		return Mat4(Vec4(columns[0] * other), Vec4(columns[1] * other), Vec4(columns[3] * other), Vec4(columns[2] * other));
+	}
+
+	constexpr Mat4 operator/(float other) const
+	{
+		return *this * (1.0f / other);
 	}
 
 	Mat4 operator*(const Mat4& other) const
@@ -884,7 +897,8 @@ struct Mat4
 		// 0 1 0 y
 		// 0 0 1 z
 		// 0 0 0 1
-		return Mat4(Vec4(1.0f, 0.0f, 0.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 0.0f), Vec4(0.0f, 0.0f, 1.0f, 0.0f), Vec4(x, y, z, 1.0f));
+		return Mat4(
+			Vec4(1.0f, 0.0f, 0.0f, 0.0f), Vec4(0.0f, 1.0f, 0.0f, 0.0f), Vec4(0.0f, 0.0f, 1.0f, 0.0f), Vec4(x, y, z, 1.0f));
 	}
 
 	static Mat4 Translate(const Vec3& v)
@@ -898,10 +912,11 @@ struct Mat4
 		float y2 = q.y * q.y;
 		float z2 = q.z * q.z;
 		float w2 = q.w * q.w;
-		return Mat4(Vec4(w2 + x2 - y2 - z2, 2 * q.x * q.y + 2 * q.w * q.z, 2 * q.x * q.z - 2 * q.w * q.y, 0.0f),
-					Vec4(2 * q.x * q.y - 2 * q.w * q.z, w2 - x2 + y2 - z2, 2 * q.y * q.z + 2 * q.w * q.x, 0.0f),
-					Vec4(2 * q.x * q.z + 2 * q.w * q.y, 2 * q.y * q.z - 2 * q.w * q.x, w2 - x2 - y2 - z2, 0.0f),
-					Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		return Mat4(
+			Vec4(w2 + x2 - y2 - z2, 2 * q.x * q.y + 2 * q.w * q.z, 2 * q.x * q.z - 2 * q.w * q.y, 0.0f),
+			Vec4(2 * q.x * q.y - 2 * q.w * q.z, w2 - x2 + y2 - z2, 2 * q.y * q.z + 2 * q.w * q.x, 0.0f),
+			Vec4(2 * q.x * q.z + 2 * q.w * q.y, 2 * q.y * q.z - 2 * q.w * q.x, w2 - x2 - y2 - z2, 0.0f),
+			Vec4(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	static Mat4 Scale(float x, float y, float z)
@@ -910,7 +925,8 @@ struct Mat4
 		// 0 y 0 0
 		// 0 0 z 0
 		// 0 0 0 1
-		return Mat4(Vec4(x, 0.0f, 0.0f, 0.0f), Vec4(0.0f, y, 0.0f, 0.0f), Vec4(0.0f, 0.0f, z, 0.0f), Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		return Mat4(
+			Vec4(x, 0.0f, 0.0f, 0.0f), Vec4(0.0f, y, 0.0f, 0.0f), Vec4(0.0f, 0.0f, z, 0.0f), Vec4(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	static Mat4 Scale(const Vec3& v)
@@ -930,10 +946,11 @@ struct Mat4
 		Vec3 s = f.Cross(up).Normalize();
 		Vec3 u = s.Cross(f);
 
-		return Mat4(Vec4(s.x, u.x, f.x, 0.0f),
-					Vec4(s.y, u.y, f.y, 0.0f),
-					Vec4(s.z, u.z, f.z, 0.0f),
-					Vec4(-s.Dot(camera), -u.Dot(camera), -f.Dot(camera), 1.0f));
+		return Mat4(
+			Vec4(s.x, u.x, f.x, 0.0f),
+			Vec4(s.y, u.y, f.y, 0.0f),
+			Vec4(s.z, u.z, f.z, 0.0f),
+			Vec4(-s.Dot(camera), -u.Dot(camera), -f.Dot(camera), 1.0f));
 	}
 
 	static Mat4 Look(const Transform& transform);
@@ -944,10 +961,11 @@ struct Mat4
 		float range = 1.0f / (zNear - zFar);
 
 		// https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
-		return Mat4(Vec4(f / aspect, 0.0f, 0.0f, 0.0f),
-					Vec4(0.0f, f, 0.0f, 0.0f),
-					Vec4(0.0f, 0.0f, (zFar + zNear) * range, -1.0f),
-					Vec4(0.0f, 0.0f, 2 * zNear * zFar * range, 0.0f));
+		return Mat4(
+			Vec4(f / aspect, 0.0f, 0.0f, 0.0f),
+			Vec4(0.0f, f, 0.0f, 0.0f),
+			Vec4(0.0f, 0.0f, (zFar + zNear) * range, -1.0f),
+			Vec4(0.0f, 0.0f, 2 * zNear * zFar * range, 0.0f));
 	}
 };
 
@@ -955,10 +973,11 @@ struct Mat4
 inline Vec4 Mat4::operator*(const Vec4& v) const
 {
 	const auto& m = *this;
-	return Vec4(m[0].x * v.x + m[1].x * v.y + m[2].x * v.z + m[3].x * v.w,
-				m[0].y * v.x + m[1].y * v.y + m[2].y * v.z + m[3].y * v.w,
-				m[0].z * v.x + m[1].z * v.y + m[2].z * v.z + m[3].z * v.w,
-				m[0].w * v.x + m[1].w * v.y + m[2].w * v.z + m[3].w * v.w);
+	return Vec4(
+		m[0].x * v.x + m[1].x * v.y + m[2].x * v.z + m[3].x * v.w,
+		m[0].y * v.x + m[1].y * v.y + m[2].y * v.z + m[3].y * v.w,
+		m[0].z * v.x + m[1].z * v.y + m[2].z * v.z + m[3].z * v.w,
+		m[0].w * v.x + m[1].w * v.y + m[2].w * v.z + m[3].w * v.w);
 }
 
 struct Transform
