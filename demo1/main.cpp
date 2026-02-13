@@ -15,14 +15,17 @@ void DrawDemo()
 			auto xf = (float)x / FRAMEBUFFER_WIDTH;
 			auto yf = (float)y / FRAMEBUFFER_HEIGHT;
 			auto f = 3.5f;
+			auto speed = 0.33f;
+			auto s = ((sinf(fmodf(g_elapsed * speed * 2 * PI, 2 * PI)) + 1.0f) * 0.5f);
+			auto c = ((cosf(fmodf(g_elapsed * speed * 2 * PI, 2 * PI)) + 1.0f) * 0.5f);
 			float n = (Perlin(
 						   Vec2(
-							   f * xf + ((sinf(g_elapsed) + 1.0f) * 0.5f),
-							   f * yf + ((cosf(g_elapsed) + 1.0f) * 0.5f)),
+							   f * xf + s,
+							   f * yf + c),
 						   64) +
 					   1.0f) *
 				0.5f;
-			SetPixel(x, y, Vec4(xf + n, n, yf + n, 0.0f));
+			SetPixel(x, y, Vec4((xf + n + c) * 0.5f, n, (yf + n + s) * 0.5f, 0.0f));
 		}
 	}
 	// DrawPalette();
