@@ -28,5 +28,5 @@ void DrawDemo()
 			SetPixel(x, y, Vec4((xf + n + c) * 0.5f, n, (yf + n + s) * 0.5f, 0.0f));
 		}
 	}
-	// DrawPalette();
+	//DrawPalette();
 }

@@ -21,6 +21,7 @@ extern int g_targetFps;
 #define DEFAULT_TARGET_FPS 60
 #define FRAMEBUFFER_WIDTH  640
 #define FRAMEBUFFER_HEIGHT 480
+#define MAX_TRIANGLES 512
 
 extern ATOM g_wndClass;
 extern HWND g_wnd;
@@ -37,6 +38,7 @@ extern RECT g_wndRect;
 extern HBITMAP g_bitmap;
 extern PBITMAPINFO g_bitmapInfo;
 extern PBYTE g_framebuffer;
+extern float g_zBuffer[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
 extern uint32_t g_fbStride;
 extern bool g_autoClear;
 extern BYTE g_clearColor;
@@ -92,8 +94,12 @@ extern void InitStandardPalette();
 extern void SetPixel(uint32_t x, uint32_t y, BYTE color);
 // set a pixel to an approximation of an rgb color
 extern void SetPixel(uint32_t x, uint32_t y, const Vec4& color, bool dither = true);
-// set a pixel but 0..1 instead of 0..g_width/height
+// set a pixel but 0..1 instead of framebuffer size
 extern void SetPixel(const Vec2& p, const Vec4& color, bool dither = true);
+
+// like SetPixel, but for depth
+extern void SetDepthPixel(uint32_t x, uint32_t y, float z);
+extern void SetDepthPixel(const Vec2& p, float z);
 
 // draw the palette
 extern void DrawPalette(

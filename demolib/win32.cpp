@@ -26,6 +26,7 @@ HBITMAP g_bitmap;
 static BYTE s_rawBitmapInfo[sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 255];
 PBITMAPINFO g_bitmapInfo = (PBITMAPINFO)s_rawBitmapInfo;
 PBYTE g_framebuffer;
+float g_zBuffer[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
 uint32_t g_fbStride;
 bool g_autoClear = true;
 BYTE g_clearColor = 0;

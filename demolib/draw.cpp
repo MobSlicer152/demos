@@ -92,6 +92,28 @@ static float TriangleArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_
 	return ((y2 - y1) * (x2 + x1) + (y3 - y2) * (x3 + x2) + (y1 - y3) * (x1 + x3)) / 2.0f;
 }
 
+DECLSPEC_ALIGN(64) struct TriangleInfo
+{
+	int32_t x1;
+	int32_t y1;
+	float z1;
+	int32_t x2;
+	int32_t y2;
+	float z2;
+	int32_t x3;
+	int32_t y3;
+	float z3;
+
+	byte c1[3];
+	byte c2[3];
+	byte c3[3];
+
+
+};
+
+static TriangleInfo s_triangles[MAX_TRIANGLES];
+static uint32_t s_triangleCount;
+
 static void RasterTriangle(
 	int32_t x1,
 	int32_t y1,
