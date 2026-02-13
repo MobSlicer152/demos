@@ -48,6 +48,20 @@ byte FindNearestColor(const Vec4& color)
 	return s_colorTable[COLORTAB_INDEX(color.r * 255, color.g * 255, color.b * 255)];
 }
 
+Vec4 BlendColor(const Vec4& fg, const Vec4& bg)
+{
+	Vec4 r;
+	r.a = 1.0f - (1.0f - fg.a) * (1.0f - bg.a);
+	if (r.a < 1.0e-6f)
+	{
+		return r;
+	}
+	r.r = fg.r * fg.a / r.a + bg.r * bg.a * (1 - fg.a) / r.a;
+	r.g = fg.g * fg.a / r.a + bg.g * bg.a * (1 - fg.a) / r.a;
+	r.b = fg.b * fg.a / r.a + bg.b * bg.a * (1 - fg.a) / r.a;
+	return r;
+}
+
 static constexpr byte BAYER_SIZE = 16;
 static constexpr byte BAYER[BAYER_SIZE][BAYER_SIZE] = {
 	{0, 128, 32, 160, 8, 136, 40, 168, 2, 130, 34, 162, 10, 138, 42, 170},
@@ -94,8 +108,8 @@ void InitStandardPalette()
 	// dont need any hsv for this
 	for (; i < STANDARD_PALETTE_COLUMNS; i++)
 	{
-		static constexpr auto F = UINT8_MAX / STANDARD_PALETTE_COLUMNS;
-		SetColor(i, i * F, i * F, i * F);
+		auto v = (byte)(logf(i) / E * 255);
+		SetColor(i, v, v, v);
 	}
 
 	auto row = [&](float s, float v) {

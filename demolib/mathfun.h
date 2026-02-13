@@ -14,6 +14,7 @@
 #include "misc.h"
 
 static constexpr float PI = 3.14159365359f;
+static constexpr float E = 2.71828182845f;
 
 static inline constexpr float Deg2Rad(float deg)
 {
@@ -631,7 +632,7 @@ inline constexpr const Vec4 Vec4::LEFT = Vec4(Vec3::LEFT, 0.0f);
 inline constexpr const Vec4 Vec4::FORWARD = Vec4(Vec3::FORWARD, 0.0f);
 inline constexpr const Vec4 Vec4::BACKWARD = Vec4(Vec3::BACKWARD, 0.0f);
 inline constexpr const Vec4 Vec4::WHITE = Vec4(1.0f);
-inline constexpr const Vec4 Vec4::BLACK = Vec4(0.0f);
+inline constexpr const Vec4 Vec4::BLACK = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
 inline constexpr const Vec4 Vec4::RED = Vec4(1.0f, 0.0f, 0.0f, 1.0f);
 inline constexpr const Vec4 Vec4::GREEN = Vec4(0.0f, 1.0f, 0.0f, 1.0f);
 inline constexpr const Vec4 Vec4::BLUE = Vec4(0.0f, 0.0f, 1.0f, 1.0f);

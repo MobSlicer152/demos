@@ -21,7 +21,7 @@ extern int g_targetFps;
 #define DEFAULT_TARGET_FPS 60
 #define FRAMEBUFFER_WIDTH  640
 #define FRAMEBUFFER_HEIGHT 480
-#define MAX_TRIANGLES 512
+#define MAX_TRIANGLES	   512
 
 extern ATOM g_wndClass;
 extern HWND g_wnd;
@@ -37,11 +37,11 @@ extern RECT g_wndRect;
 
 extern HBITMAP g_bitmap;
 extern PBITMAPINFO g_bitmapInfo;
-extern PBYTE g_framebuffer;
+extern byte* g_framebuffer;
 extern float g_zBuffer[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
 extern uint32_t g_fbStride;
 extern bool g_autoClear;
-extern BYTE g_clearColor;
+extern Vec4 g_clearColor;
 
 // demo functions, provided by individual demo
 
@@ -79,27 +79,32 @@ extern float Perlin(const Vec2& p, uint32_t period);
 extern float FBM(const Vec2& p, uint32_t period, uint32_t octave);
 
 // sets a palette color
-extern void SetColor(BYTE index, BYTE r, BYTE g, BYTE b);
-extern void GetColor(BYTE index, BYTE& r, BYTE& g, BYTE& b);
-extern BYTE FindNearestColor(BYTE r, BYTE g, BYTE b);
-extern BYTE FindNearestColor(const Vec4& color);
+extern void SetColor(byte index, byte r, byte g, byte b);
+extern void GetColor(byte index, byte& r, byte& g, byte& b);
+extern byte FindNearestColor(byte r, byte g, byte b);
+extern byte FindNearestColor(const Vec4& color);
+extern Vec4 BlendColor(const Vec4& fg, const Vec4& bg);
 
 // dither a color
-extern BYTE Dither(uint32_t x, uint32_t y, const Vec4& color);
+extern byte Dither(uint32_t x, uint32_t y, const Vec4& color);
 
 // initializes a palette with a decent range of hsv values
 extern void InitStandardPalette();
 
 // set a pixel to a palette color
-extern void SetPixel(uint32_t x, uint32_t y, BYTE color);
+extern void SetPixel(uint32_t x, uint32_t y, byte color);
 // set a pixel to an approximation of an rgb color
 extern void SetPixel(uint32_t x, uint32_t y, const Vec4& color, bool dither = true);
 // set a pixel but 0..1 instead of framebuffer size
 extern void SetPixel(const Vec2& p, const Vec4& color, bool dither = true);
+extern Vec4 GetPixel(uint32_t x, uint32_t y);
+extern Vec4 GetPixel(const Vec2& p);
 
 // like SetPixel, but for depth
 extern void SetDepthPixel(uint32_t x, uint32_t y, float z);
 extern void SetDepthPixel(const Vec2& p, float z);
+extern float GetDepthPixel(uint32_t x, uint32_t y);
+extern float GetDepthPixel(const Vec2& p);
 
 // draw the palette
 extern void DrawPalette(
@@ -112,6 +117,11 @@ extern void DrawPalette(
 
 // draw a rectangle
 extern void DrawRectangle(const Vec3& a, const Vec3& b, const Vec4& color);
+
+// clear color buffer
+extern void ClearColor(const Vec4& c);
+// clear depth buffer
+extern void ClearDepth(float z);
 
 // draw a line
 extern void DrawLine(const Vec3& start, const Vec3& end, const Vec4& color);
@@ -128,7 +138,44 @@ enum class DrawMode
 
 static constexpr uint32_t INVALID_TEXTURE_ID = 0;
 
-// add a triangle to the draw queue
+struct VertexShaderInput
+{
+	Vec4 vert;
+	Mat4 mvp;
+	Vec4 color;
+	void* user;
+};
+
+struct VertexShaderOutput
+{
+	Vec4 pos;
+	Vec4 color;
+};
+
+typedef void (*VertexShaderCallback_t)(const VertexShaderInput& in, const VertexShaderOutput& out);
+
+struct FragmentShaderInput
+{
+	Vec4 pos;
+	Vec4 color;
+	void* user;
+};
+
+struct FragmentShaderOutput
+{
+	Vec4 color;
+};
+
+typedef void (*FragmentShaderCallback_t)(const FragmentShaderInput& in, const FragmentShaderOutput& out);
+
+struct Shader
+{
+	VertexShaderCallback_t vertex;
+	FragmentShaderCallback_t fragment;
+	void* user;
+};
+
+// draw a triangle
 extern void DrawTriangle(
 	const Vec4& p1,
 	const Vec4& p2,
@@ -137,10 +184,8 @@ extern void DrawTriangle(
 	const Vec4& c2,
 	const Vec4& c3,
 	DrawMode mode = DrawMode::Shaded,
-	uint32_t textureId = INVALID_TEXTURE_ID);
-
-// process all the queued triangle draws and reset the list
-extern void ProcessTriangleDraws();
+	uint32_t textureId = INVALID_TEXTURE_ID,
+	Shader* shader = nullptr);
 
 // display an error messagebox and exit the process
 extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, ...);

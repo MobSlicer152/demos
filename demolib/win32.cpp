@@ -29,7 +29,7 @@ PBYTE g_framebuffer;
 float g_zBuffer[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
 uint32_t g_fbStride;
 bool g_autoClear = true;
-BYTE g_clearColor = 0;
+Vec4 g_clearColor = Vec4::BLACK;
 
 #define CLASSNAME "Demo1"
 
@@ -186,6 +186,8 @@ static void WindowLoop()
 		if (g_autoClear)
 		{
 			DrawRectangle(Vec2(0.0f), Vec2(1.0f), g_clearColor);
+			ClearColor(g_clearColor);
+			ClearDepth(-1.0f);
 		}
 
 		DrawDemo();
