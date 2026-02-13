@@ -152,7 +152,7 @@ struct VertexShaderOutput
 	Vec4 color;
 };
 
-typedef void (*VertexShaderCallback_t)(const VertexShaderInput& in, const VertexShaderOutput& out);
+typedef void (*VertexShaderCallback_t)(const VertexShaderInput& in, VertexShaderOutput& out);
 
 struct FragmentShaderInput
 {
@@ -166,7 +166,7 @@ struct FragmentShaderOutput
 	Vec4 color;
 };
 
-typedef void (*FragmentShaderCallback_t)(const FragmentShaderInput& in, const FragmentShaderOutput& out);
+typedef void (*FragmentShaderCallback_t)(const FragmentShaderInput& in, FragmentShaderOutput& out);
 
 struct Shader
 {
@@ -185,7 +185,30 @@ extern void DrawTriangle(
 	const Vec4& c3,
 	DrawMode mode = DrawMode::Shaded,
 	uint32_t textureId = INVALID_TEXTURE_ID,
+	Mat4 mvp = Mat4(),
 	Shader* shader = nullptr);
+
+// draw an MD2 model
+extern void DrawModel(
+	const CMD2Model& model,
+	DrawMode mode = DrawMode::Shaded,
+	uint32_t textureId = INVALID_TEXTURE_ID,
+	Mat4 mvp = Mat4(),
+	Shader* shader = nullptr);
+// draw a model from raw mesh data
+extern void DrawModel(
+	const Vec3* verts,
+	uint32_t vertCount,
+	const Vec3i* tris,
+	uint32_t triCount,
+	DrawMode mode = DrawMode::Shaded,
+	uint32_t textureId = INVALID_TEXTURE_ID,
+	Mat4 mvp = Mat4(),
+	Shader* shader = nullptr,
+	const Vec3* normals = nullptr,
+	uint32_t normalCount = 0,
+	const Vec2* texCoords = nullptr,
+	uint32_t texCoordCount = 0);
 
 // display an error messagebox and exit the process
 extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, ...);

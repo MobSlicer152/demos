@@ -4,7 +4,7 @@
 #define CLAMP_COORDS(x, y)                                                                                                       \
 	x = std::clamp((int32_t)x, 0, FRAMEBUFFER_WIDTH - 1);                                                                        \
 	y = std::clamp((int32_t)y, 0, FRAMEBUFFER_HEIGHT - 1);
-#define FLOAT_TO_INT(p) (uint32_t)(p.x * FRAMEBUFFER_WIDTH), (uint32_t)(p.y * FRAMEBUFFER_HEIGHT)
+#define FLOAT_TO_INT(p) (int32_t)((p.x + 1.0f) * 0.5f * FRAMEBUFFER_WIDTH), (int32_t)((p.y + 1.0f) * 0.5f * FRAMEBUFFER_HEIGHT)
 
 void SetPixel(uint32_t x, uint32_t y, byte color)
 {
@@ -194,10 +194,10 @@ DECLSPEC_ALIGN(64) struct TriangleInfo
 
 static void RasterTriangle(const TriangleInfo& t)
 {
-	auto minX = (uint32_t)std::min(t.x1, std::min(t.x2, t.x3));
-	auto minY = (uint32_t)std::min(t.y1, std::min(t.y2, t.y3));
-	auto maxX = (uint32_t)std::max(t.x1, std::max(t.x2, t.x3));
-	auto maxY = (uint32_t)std::max(t.y1, std::max(t.y2, t.y3));
+	auto minX = std::min(t.x1, std::min(t.x2, t.x3));
+	auto minY = std::min(t.y1, std::min(t.y2, t.y3));
+	auto maxX = std::max(t.x1, std::max(t.x2, t.x3));
+	auto maxY = std::max(t.y1, std::max(t.y2, t.y3));
 
 	float area = TriangleArea(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3);
 	// get rid of small triangles
@@ -206,9 +206,9 @@ static void RasterTriangle(const TriangleInfo& t)
 		return;
 	}
 
-	for (uint32_t y = minY; y <= maxY; y++)
+	for (int32_t y = minY; y <= maxY; y++)
 	{
-		for (uint32_t x = minX; x <= maxX; x++)
+		for (int32_t x = minX; x <= maxX; x++)
 		{
 			float a = TriangleArea(x, y, t.x2, t.y2, t.x3, t.y3) / area;
 			float b = TriangleArea(x, y, t.x3, t.y3, t.x1, t.y1) / area;
@@ -240,6 +240,51 @@ static void RasterTriangle(const TriangleInfo& t)
 	}
 }
 
+struct ProcessedTriangle
+{
+	Vec4 v1;
+	Vec4 v2;
+	Vec4 v3;
+	Vec4 c1;
+	Vec4 c2;
+	Vec4 c3;
+
+	ProcessedTriangle(
+		const Vec4& p1,
+		const Vec4& p2,
+		const Vec4& p3,
+		const Vec4& ci1,
+		const Vec4& ci2,
+		const Vec4& ci3,
+		Mat4 mvp,
+		Shader* shader)
+	{
+		v1 = p1;
+		v2 = p2;
+		v3 = p3;
+		c1 = ci1;
+		c2 = ci2;
+		c3 = ci3;
+		if (shader && shader->vertex)
+		{
+			VertexShaderInput vsi[3];
+			vsi[0] = {v1, mvp, c1, shader->user};
+			vsi[1] = {v2, mvp, c2, shader->user};
+			vsi[2] = {v3, mvp, c3, shader->user};
+			VertexShaderOutput vso[3];
+			shader->vertex(vsi[0], vso[0]);
+			shader->vertex(vsi[1], vso[1]);
+			shader->vertex(vsi[2], vso[2]);
+			v1 = vso[0].pos;
+			c1 = vso[0].color;
+			v2 = vso[1].pos;
+			c2 = vso[1].color;
+			v3 = vso[2].pos;
+			c3 = vso[2].color;
+		}
+	}
+};
+
 void DrawTriangle(
 	const Vec4& p1,
 	const Vec4& p2,
@@ -249,9 +294,11 @@ void DrawTriangle(
 	const Vec4& c3,
 	DrawMode mode,
 	uint32_t textureId,
+	Mat4 mvp,
 	Shader* shader)
 {
-	auto t = TriangleInfo(p1, p2, p3, c1, c2, c3, mode, textureId, shader);
+	auto pt = ProcessedTriangle(p1, p2, p3, c1, c2, c3, mvp, shader);
+	auto t = TriangleInfo(pt.v1, pt.v2, pt.v3, pt.c1, pt.c2, pt.c3, mode, textureId, shader);
 	switch (t.mode)
 	{
 	case DrawMode::Flat:
@@ -260,5 +307,34 @@ void DrawTriangle(
 		break;
 	case DrawMode::Wireframe:
 		break;
+	}
+}
+
+void DrawModel(const CMD2Model& model, DrawMode mode, uint32_t textureId, Mat4 mvp, Shader* shader)
+{
+}
+
+void DrawModel(
+	const Vec3* verts,
+	uint32_t vertCount,
+	const Vec3i* tris,
+	uint32_t triCount,
+	DrawMode mode,
+	uint32_t textureId,
+	Mat4 mvp,
+	Shader* shader,
+	const Vec3* normals,
+	uint32_t normalCount,
+	const Vec2* texCoords,
+	uint32_t texCoordCount)
+{
+	for (uint32_t i = 0; i < triCount; i++)
+	{
+		const auto& tri = tris[i];
+		ASSERT_MSG(tri[0] < vertCount && tri[1] < vertCount && tri[2] < vertCount, "Invalid triangle!");
+		auto pt =
+			ProcessedTriangle(verts[tri[0]], verts[tri[1]], verts[tri[2]], Vec4::WHITE, Vec4::WHITE, Vec4::WHITE, mvp, shader);
+		auto t = TriangleInfo(pt.v1, pt.v2, pt.v3, pt.c1, pt.c2, pt.c3, mode, textureId, shader);
+		RasterTriangle(t);
 	}
 }

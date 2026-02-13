@@ -187,7 +187,7 @@ static void WindowLoop()
 		{
 			DrawRectangle(Vec2(0.0f), Vec2(1.0f), g_clearColor);
 			ClearColor(g_clearColor);
-			ClearDepth(-1.0f);
+			ClearDepth(FLT_MIN);
 		}
 
 		DrawDemo();
