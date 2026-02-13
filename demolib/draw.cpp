@@ -94,44 +94,49 @@ static float TriangleArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_
 
 DECLSPEC_ALIGN(64) struct TriangleInfo
 {
-	int32_t x1;
-	int32_t y1;
-	float z1;
-	int32_t x2;
-	int32_t y2;
-	float z2;
-	int32_t x3;
-	int32_t y3;
-	float z3;
+	int32_t x1 = 0;
+	int32_t y1 = 0;
+	float z1 = 0.0f;
+	int32_t x2 = 0;
+	int32_t y2 = 0;
+	float z2 = 0.0f;
+	int32_t x3 = 0;
+	int32_t y3 = 0;
+	float z3 = 0.0f;
 
-	byte c1[3];
-	byte c2[3];
-	byte c3[3];
+	Vec4 c1;
+	Vec4 c2;
+	Vec4 c3;
 
+	DrawMode mode = DrawMode::Shaded;
+	uint32_t textureId = UINT32_MAX;
 
+	TriangleInfo() = default;
+
+	TriangleInfo(
+		const Vec4& p1,
+		const Vec4& p2,
+		const Vec4& p3,
+		const Vec4& c1,
+		const Vec4& c2,
+		const Vec4& c3,
+		DrawMode mode,
+		uint32_t textureId)
+		: x1(p1.x * FRAMEBUFFER_WIDTH), y1(p1.y * FRAMEBUFFER_HEIGHT), x2(p2.x * FRAMEBUFFER_WIDTH),
+		  y2(p2.y * FRAMEBUFFER_HEIGHT), x3(p3.x * FRAMEBUFFER_WIDTH), y3(p3.y * FRAMEBUFFER_HEIGHT),
+		  c1(c1), c2(c2), c3(c3), mode(mode), textureId(textureId)
+	{
+	}
 };
 
-static TriangleInfo s_triangles[MAX_TRIANGLES];
-static uint32_t s_triangleCount;
-
-static void RasterTriangle(
-	int32_t x1,
-	int32_t y1,
-	int32_t x2,
-	int32_t y2,
-	int32_t x3,
-	int32_t y3,
-	const Vec4& c1,
-	const Vec4& c2,
-	const Vec4& c3,
-	uint32_t textureId)
+static void RasterTriangle(const TriangleInfo& t)
 {
-	auto minX = (uint32_t)std::min(x1, std::min(x2, x3));
-	auto minY = (uint32_t)std::min(y1, std::min(y2, y3));
-	auto maxX = (uint32_t)std::max(x1, std::max(x2, x3));
-	auto maxY = (uint32_t)std::max(y1, std::max(y2, y3));
+	auto minX = (uint32_t)std::min(t.x1, std::min(t.x2, t.x3));
+	auto minY = (uint32_t)std::min(t.y1, std::min(t.y2, t.y3));
+	auto maxX = (uint32_t)std::max(t.x1, std::max(t.x2, t.x3));
+	auto maxY = (uint32_t)std::max(t.y1, std::max(t.y2, t.y3));
 
-	float area = TriangleArea(x1, y1, x2, y2, x3, y3);
+	float area = TriangleArea(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3);
 	//// get rid of small triangles
 	// if (area < 1)
 	//{
@@ -142,15 +147,16 @@ static void RasterTriangle(
 	{
 		for (uint32_t x = minX; x <= maxX; x++)
 		{
-			float a = TriangleArea(x, y, x2, y2, x3, y3) / area;
-			float b = TriangleArea(x, y, x3, y3, x1, y1) / area;
-			float c = TriangleArea(x, y, x1, y1, x2, y2) / area;
+			float a = TriangleArea(x, y, t.x2, t.y2, t.x3, t.y3) / area;
+			float b = TriangleArea(x, y, t.x3, t.y3, t.x1, t.y1) / area;
+			float c = TriangleArea(x, y, t.x1, t.y1, t.x2, t.y2) / area;
 			if (a < 0 || b < 0 || c < 0)
 			{
 				continue;
 			}
 
-			SetPixel(x, y, c1);
+			SetDepthPixel(x, y, t.z1);
+			SetPixel(x, y, t.c1);
 		}
 	}
 }
@@ -165,33 +171,14 @@ void DrawTriangle(
 	DrawMode mode,
 	uint32_t textureId)
 {
-	switch (mode)
+	auto t = TriangleInfo(p1, p2, p3, c1, c2, c3, mode, textureId);
+	switch (t.mode)
 	{
-	case DrawMode::Shaded:
-		RasterTriangle(
-			p1.x * FRAMEBUFFER_WIDTH,
-			p1.y * FRAMEBUFFER_HEIGHT,
-			p2.x * FRAMEBUFFER_WIDTH,
-			p2.y * FRAMEBUFFER_HEIGHT,
-			p3.x * FRAMEBUFFER_WIDTH,
-			p3.y * FRAMEBUFFER_HEIGHT,
-			c1,
-			c2,
-			c3,
-			textureId);
-		break;
 	case DrawMode::Flat:
+	case DrawMode::Shaded:
+		RasterTriangle(t);
 		break;
 	case DrawMode::Wireframe:
-		DrawLine(Vec3(p1.x, p1.y, p1.z), Vec3(p2.x, p2.y, p2.z), c1);
-		DrawLine(Vec3(p2.x, p2.y, p2.z), Vec3(p3.x, p3.y, p3.z), c2);
-		DrawLine(Vec3(p3.x, p3.y, p3.z), Vec3(p1.x, p1.y, p1.z), c3);
-		break;
-	case DrawMode::Normals:
-		break;
-	case DrawMode::UV:
-		break;
-	default:
 		break;
 	}
 }

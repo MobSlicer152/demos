@@ -128,7 +128,7 @@ enum class DrawMode
 
 static constexpr uint32_t INVALID_TEXTURE_ID = 0;
 
-// draw a triangle
+// add a triangle to the draw queue
 extern void DrawTriangle(
 	const Vec4& p1,
 	const Vec4& p2,
@@ -138,6 +138,9 @@ extern void DrawTriangle(
 	const Vec4& c3,
 	DrawMode mode = DrawMode::Shaded,
 	uint32_t textureId = INVALID_TEXTURE_ID);
+
+// process all the queued triangle draws and reset the list
+extern void ProcessTriangleDraws();
 
 // display an error messagebox and exit the process
 extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, ...);
