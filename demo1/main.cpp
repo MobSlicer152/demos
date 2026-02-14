@@ -97,6 +97,6 @@ void DrawDemo()
 		INVALID_TEXTURE_ID,
 		vp * Transform(Vec3(0.0f, 0.05f, -0.5f), Quat(Vec3::LEFT, PI / 2) * Quat(Vec3::UP, g_elapsed), 0.05f).GetMatrix(),
 		&heartShader);
-	DrawString(sinf(g_elapsed) * 128 + FRAMEBUFFER_WIDTH / 2 - 150, 8, Vec4::RED, 4.0f, "I love you!");
-	DrawString(cosf(-g_elapsed) * 128 + FRAMEBUFFER_WIDTH / 2 - 120, FRAMEBUFFER_HEIGHT - 5 * 8, Vec4::RED, 4.0f, "1225 & 802");
+	DrawString(sinf(g_elapsed) * 128 + FRAMEBUFFER_WIDTH / 2 - 160, 8, Vec4::RED, 4.0f, "I love you!");
+	DrawString(cosf(-g_elapsed) * 128 + FRAMEBUFFER_WIDTH / 2 - 160, FRAMEBUFFER_HEIGHT - 5 * 8, Vec4::RED, 4.0f, "1225 & 802");
 }
