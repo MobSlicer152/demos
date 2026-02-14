@@ -4,7 +4,17 @@
 #define CLAMP_COORDS(x, y)                                                                                                       \
 	x = std::clamp((int32_t)x, 0, FRAMEBUFFER_WIDTH - 1);                                                                        \
 	y = std::clamp((int32_t)y, 0, FRAMEBUFFER_HEIGHT - 1);
-#define FLOAT_TO_INT(p) (int32_t)((p.x + 1.0f) * 0.5f * FRAMEBUFFER_WIDTH), (int32_t)((p.y + 1.0f) * 0.5f * FRAMEBUFFER_HEIGHT)
+
+static void ViewportToFramebuffer(const Vec2& p, int32_t& x, int32_t y)
+{
+	x = (int32_t)((std::clamp(p.x, -1.0f, 1.0f) + 1.0f) * 0.5f * FRAMEBUFFER_WIDTH);
+	y = (int32_t)((1.0f - (std::clamp(p.y, -1.0f, 1.0f) + 1.0f) * 0.5f) * FRAMEBUFFER_HEIGHT);
+}
+
+static Vec2 FramebufferToViewport(int32_t x, int32_t y)
+{
+	return Vec2((float)x / FRAMEBUFFER_WIDTH * 2.0f - 1.0f, (float)y / FRAMEBUFFER_HEIGHT * 2.0f - 1.0f);
+}
 
 void SetPixel(uint32_t x, uint32_t y, byte color)
 {
@@ -20,7 +30,9 @@ void SetPixel(uint32_t x, uint32_t y, const Vec4& color, bool dither)
 
 void SetPixel(const Vec2& p, const Vec4& color, bool dither)
 {
-	SetPixel(FLOAT_TO_INT(p), color, dither);
+	int32_t x, y;
+	ViewportToFramebuffer(p, x, y);
+	SetPixel(x, y, color, dither);
 }
 
 Vec4 GetPixel(uint32_t x, uint32_t y)
@@ -34,7 +46,9 @@ Vec4 GetPixel(uint32_t x, uint32_t y)
 
 Vec4 GetPixel(const Vec2& p)
 {
-	return GetPixel(FLOAT_TO_INT(p));
+	int32_t x, y;
+	ViewportToFramebuffer(p, x, y);
+	return GetPixel(x, y);
 }
 
 void SetDepthPixel(uint32_t x, uint32_t y, float z)
@@ -45,7 +59,9 @@ void SetDepthPixel(uint32_t x, uint32_t y, float z)
 
 void SetDepthPixel(const Vec2& p, float z)
 {
-	SetDepthPixel(FLOAT_TO_INT(p), z);
+	int32_t x, y;
+	ViewportToFramebuffer(p, x, y);
+	SetDepthPixel(x, y, z);
 }
 
 float GetDepthPixel(uint32_t x, uint32_t y)
@@ -56,7 +72,9 @@ float GetDepthPixel(uint32_t x, uint32_t y)
 
 float GetDepthPixel(const Vec2& p)
 {
-	return GetDepthPixel(FLOAT_TO_INT(p));
+	int32_t x, y;
+	ViewportToFramebuffer(p, x, y);
+	return GetDepthPixel(x, y);
 }
 
 void DrawPalette(uint32_t width, uint32_t height, uint32_t xi, uint32_t yi, uint32_t perRow, uint32_t rows)
@@ -185,10 +203,12 @@ DECLSPEC_ALIGN(64) struct TriangleInfo
 		DrawMode mode,
 		uint32_t textureId,
 		Shader* shader)
-		: x1(p1.x * FRAMEBUFFER_WIDTH), y1(p1.y * FRAMEBUFFER_HEIGHT), z1(p1.z), w1(p1.w), x2(p2.x * FRAMEBUFFER_WIDTH),
-		  y2(p2.y * FRAMEBUFFER_HEIGHT), z2(p2.z), w2(p2.w), x3(p3.x * FRAMEBUFFER_WIDTH), y3(p3.y * FRAMEBUFFER_HEIGHT),
+		: z1(p1.z), w1(p1.w), z2(p2.z), w2(p2.w),
 		  z3(p3.z), w3(p3.w), c1(c1), c2(c2), c3(c3), mode(mode), textureId(textureId), shader(shader)
 	{
+		ViewportToFramebuffer(Vec2(p1.x, p1.y), x1, y1);
+		ViewportToFramebuffer(Vec2(p2.x, p2.y), x2, y2);
+		ViewportToFramebuffer(Vec2(p3.x, p3.y), x3, y3);
 	}
 };
 
@@ -221,12 +241,13 @@ static void RasterTriangle(const TriangleInfo& t)
 			float z = a * t.z1 + b * t.z2 + g * t.z3;
 			float w = a * t.w1 + b * t.w2 + g * t.w3;
 			auto c = t.c1 * a + t.c2 * b + t.c3 * g;
-			FragmentShaderOutput fso = {c}; // default
 			if (t.shader && t.shader->fragment)
 			{
 				FragmentShaderInput fsi = {
-					Vec4((float)x / FRAMEBUFFER_WIDTH, (float)y / FRAMEBUFFER_HEIGHT, z, w), g, t.shader->user};
+					Vec4(FramebufferToViewport(x, y), z, w), g, t.shader->user};
+				FragmentShaderOutput fso = {};
 				t.shader->fragment(fsi, fso);
+				c = fso.color;
 			}
 
 			if (z <= GetDepthPixel(x, y))
@@ -235,7 +256,7 @@ static void RasterTriangle(const TriangleInfo& t)
 			}
 
 			SetDepthPixel(x, y, z);
-			SetPixel(x, y, BlendColor(fso.color, GetPixel(x, y)));
+			SetPixel(x, y, BlendColor(c, GetPixel(x, y)));
 		}
 	}
 }
