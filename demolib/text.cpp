@@ -6,9 +6,10 @@ void DrawChar(int32_t x, int32_t y, char c, const Vec4& color, float size)
 {
 	c &= 0x7F;
 	const auto& b = font8x8_basic[c];
-	for (uint32_t i = 0; i < ArraySize(b) * size; i++)
+#pragma omp parallel for
+	for (uint32_t i = 0; i < (uint32_t)(ArraySize(b) * size); i++)
 	{
-		for (uint32_t j = 0; j < 8 * size; j++)
+		for (uint32_t j = 0; j < (uint32_t)(8 * size); j++)
 		{
 			SetPixel(x + j, y + i, b[(uint32_t)(i / size)] & (1 << (uint32_t)(j / size)) ? color : Vec4(0.0f, 0.0f, 0.0f, 0.0f));
 		}

@@ -345,6 +345,7 @@ void DrawModel(const CMD2Model* model, DrawMode mode, uint32_t textureId, Mat4 m
 	const auto& normals = CMD2Model::NORMALS;
 	const auto texCoords = model->GetTexCoords();
 	const auto tris = model->GetTriangles();
+#pragma omp parallel for
 	for (uint32_t i = 0; i < model->GetTriangleCount(); i++)
 	{
 		const auto& tri = tris[i];
