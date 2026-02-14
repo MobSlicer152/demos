@@ -74,7 +74,8 @@ struct MD2GLVertex
 class CMD2Model
 {
   public:
-	CMD2Model(byte* data, size_t size);
+	CMD2Model() = default;
+	CMD2Model(const byte* data, size_t size);
 	~CMD2Model();
 
 	const MD2Header& GetHeader() const

@@ -89,6 +89,7 @@
       <OpenMPSupport>
       </OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -122,6 +123,7 @@
       <OpenMPSupport>
       </OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -154,6 +156,7 @@
       <OpenMPSupport>
       </OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -187,6 +190,7 @@
       <OpenMPSupport>
       </OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -214,9 +218,9 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="color.cpp" />
-    <ClCompile Include="crt.cpp" />
     <ClCompile Include="md2.cpp" />
     <ClCompile Include="noise.cpp" />
+    <ClCompile Include="text.cpp" />
     <ClCompile Include="win32.cpp" />
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="pch.cpp">

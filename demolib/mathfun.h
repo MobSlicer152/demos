@@ -16,17 +16,17 @@
 static constexpr float PI = 3.14159365359f;
 static constexpr float E = 2.71828182845f;
 
-static inline constexpr float Deg2Rad(float deg)
+static FORCEINLINE constexpr float Deg2Rad(float deg)
 {
 	return deg * PI / 180;
 }
 
-static inline constexpr float Rad2Deg(float rad)
+static FORCEINLINE constexpr float Rad2Deg(float rad)
 {
 	return rad * 180 / PI;
 }
 
-static inline constexpr float AtLeast(float value, float min = FLT_EPSILON)
+static FORCEINLINE constexpr float AtLeast(float value, float min = FLT_EPSILON)
 {
 	return abs(value) > min ? value : 0.0f;
 }
@@ -34,6 +34,11 @@ static inline constexpr float AtLeast(float value, float min = FLT_EPSILON)
 static FORCEINLINE bool FloatEqual(float a, float b, float epsilon = FLT_EPSILON)
 {
 	return abs(a - b) < epsilon;
+}
+
+template <typename T> static FORCEINLINE constexpr T Lerp(T v0, T v1, float t)
+{
+	return v0 + (v1 - v0) * t;
 }
 
 // predeclare these, so they can reference each other
@@ -320,12 +325,6 @@ struct Vec3
 	Vec3 ColorToNormal() const
 	{
 		return *this * 2.0f - 1.0f;
-	}
-
-	Vec3 Lerp(const Vec3& p1, float t) const
-	{
-		const Vec3& p0 = *this;
-		return p0 * (1.0f - t) + p1 * t;
 	}
 
 	float Major() const
@@ -999,7 +998,7 @@ struct Transform
 
 	Transform Lerp(const Transform& other, float t) const
 	{
-		return Transform(position.Lerp(other.position, t), rotation.Slerp(other.rotation, t), other.scale);
+		return Transform(::Lerp(position, other.position, t), rotation.Slerp(other.rotation, t), other.scale);
 	}
 };
 
@@ -1077,10 +1076,4 @@ static FORCEINLINE Vec4 RgbToHsv(const Vec4& rgb)
 	}
 
 	return hsv;
-}
-
-template <typename T>
-static constexpr T Lerp(T v0, T v1, T t)
-{
-	return v0 + t * (v1 - v0);
 }

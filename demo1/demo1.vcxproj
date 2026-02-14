@@ -106,7 +106,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;libompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;vcruntimed.lib;ucrtd.lib;libompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
@@ -135,7 +135,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;libomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;vcruntime.lib;ucrt.lib;libomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
@@ -163,7 +163,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;libompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;vcruntimed.lib;ucrtd.lib;libompd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
@@ -192,7 +192,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;libomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;vcruntime.lib;ucrt.lib;libomp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>DemoEntry</EntryPointSymbol>
     </Link>
     <PostBuildEvent>

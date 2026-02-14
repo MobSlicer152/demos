@@ -5,10 +5,10 @@
 	x = std::clamp((int32_t)x, 0, FRAMEBUFFER_WIDTH - 1);                                                                        \
 	y = std::clamp((int32_t)y, 0, FRAMEBUFFER_HEIGHT - 1);
 
-static void ViewportToFramebuffer(const Vec2& p, int32_t& x, int32_t y)
+static void ViewportToFramebuffer(const Vec2& p, int32_t& x, int32_t& y)
 {
-	x = (int32_t)((std::clamp(p.x, -1.0f, 1.0f) + 1.0f) * 0.5f * FRAMEBUFFER_WIDTH);
-	y = (int32_t)((1.0f - (std::clamp(p.y, -1.0f, 1.0f) + 1.0f) * 0.5f) * FRAMEBUFFER_HEIGHT);
+	x = (p.x + 1.0f) * 0.5f * FRAMEBUFFER_WIDTH;
+	y = (-p.y + 1.0f) * 0.5f * FRAMEBUFFER_HEIGHT;
 }
 
 static Vec2 FramebufferToViewport(int32_t x, int32_t y)
@@ -24,7 +24,8 @@ void SetPixel(uint32_t x, uint32_t y, byte color)
 
 void SetPixel(uint32_t x, uint32_t y, const Vec4& color, bool dither)
 {
-	byte c = dither ? Dither(x, y, color) : FindNearestColor(color);
+	auto blended = BlendColor(color, GetPixel(x, y));
+	byte c = dither ? Dither(x, y, blended) : FindNearestColor(blended);
 	SetPixel(x, y, c);
 }
 
@@ -203,21 +204,21 @@ DECLSPEC_ALIGN(64) struct TriangleInfo
 		DrawMode mode,
 		uint32_t textureId,
 		Shader* shader)
-		: z1(p1.z), w1(p1.w), z2(p2.z), w2(p2.w),
-		  z3(p3.z), w3(p3.w), c1(c1), c2(c2), c3(c3), mode(mode), textureId(textureId), shader(shader)
+		: z1(p1.z), w1(p1.w), z2(p2.z), w2(p2.w), z3(p3.z), w3(p3.w), c1(c1), c2(c2), c3(c3), mode(mode), textureId(textureId),
+		  shader(shader)
 	{
-		ViewportToFramebuffer(Vec2(p1.x, p1.y), x1, y1);
-		ViewportToFramebuffer(Vec2(p2.x, p2.y), x2, y2);
-		ViewportToFramebuffer(Vec2(p3.x, p3.y), x3, y3);
+		ViewportToFramebuffer(Vec2(p1.x, p1.y) / p1.w, x1, y1);
+		ViewportToFramebuffer(Vec2(p2.x, p2.y) / p2.w, x2, y2);
+		ViewportToFramebuffer(Vec2(p3.x, p3.y) / p3.w, x3, y3);
 	}
 };
 
 static void RasterTriangle(const TriangleInfo& t)
 {
-	auto minX = std::min(t.x1, std::min(t.x2, t.x3));
-	auto minY = std::min(t.y1, std::min(t.y2, t.y3));
-	auto maxX = std::max(t.x1, std::max(t.x2, t.x3));
-	auto maxY = std::max(t.y1, std::max(t.y2, t.y3));
+	auto minX = std::clamp(std::min(t.x1, std::min(t.x2, t.x3)), 0, FRAMEBUFFER_WIDTH);
+	auto minY = std::clamp(std::min(t.y1, std::min(t.y2, t.y3)), 0, FRAMEBUFFER_HEIGHT);
+	auto maxX = std::clamp(std::max(t.x1, std::max(t.x2, t.x3)), 0, FRAMEBUFFER_WIDTH);
+	auto maxY = std::clamp(std::max(t.y1, std::max(t.y2, t.y3)), 0, FRAMEBUFFER_HEIGHT);
 
 	float area = TriangleArea(t.x1, t.y1, t.x2, t.y2, t.x3, t.y3);
 	// get rid of small triangles
@@ -226,6 +227,7 @@ static void RasterTriangle(const TriangleInfo& t)
 		return;
 	}
 
+#pragma omp parallel for collapse(2)
 	for (int32_t y = minY; y <= maxY; y++)
 	{
 		for (int32_t x = minX; x <= maxX; x++)
@@ -238,13 +240,17 @@ static void RasterTriangle(const TriangleInfo& t)
 				continue;
 			}
 
-			float z = a * t.z1 + b * t.z2 + g * t.z3;
+			if (t.mode == DrawMode::Wireframe && (a > 0.01f && b > 0.01f && g > 0.01f))
+			{
+				continue;
+			}
+
 			float w = a * t.w1 + b * t.w2 + g * t.w3;
+			float z = (a * t.z1 + b * t.z2 + g * t.z3) / w;
 			auto c = t.c1 * a + t.c2 * b + t.c3 * g;
 			if (t.shader && t.shader->fragment)
 			{
-				FragmentShaderInput fsi = {
-					Vec4(FramebufferToViewport(x, y), z, w), g, t.shader->user};
+				FragmentShaderInput fsi = {Vec4(FramebufferToViewport(x, y), z, w), c, t.shader->user};
 				FragmentShaderOutput fso = {};
 				t.shader->fragment(fsi, fso);
 				c = fso.color;
@@ -256,7 +262,7 @@ static void RasterTriangle(const TriangleInfo& t)
 			}
 
 			SetDepthPixel(x, y, z);
-			SetPixel(x, y, BlendColor(c, GetPixel(x, y)));
+			SetPixel(x, y, c);
 		}
 	}
 }
@@ -274,6 +280,7 @@ struct ProcessedTriangle
 		const Vec4& p1,
 		const Vec4& p2,
 		const Vec4& p3,
+		const Vec3i& tri,
 		const Vec4& ci1,
 		const Vec4& ci2,
 		const Vec4& ci3,
@@ -289,9 +296,9 @@ struct ProcessedTriangle
 		if (shader && shader->vertex)
 		{
 			VertexShaderInput vsi[3];
-			vsi[0] = {v1, mvp, c1, shader->user};
-			vsi[1] = {v2, mvp, c2, shader->user};
-			vsi[2] = {v3, mvp, c3, shader->user};
+			vsi[0] = {v1, (uint32_t)tri[0], mvp, c1, shader->user};
+			vsi[1] = {v2, (uint32_t)tri[1], mvp, c2, shader->user};
+			vsi[2] = {v3, (uint32_t)tri[2], mvp, c3, shader->user};
 			VertexShaderOutput vso[3];
 			shader->vertex(vsi[0], vso[0]);
 			shader->vertex(vsi[1], vso[1]);
@@ -318,21 +325,54 @@ void DrawTriangle(
 	Mat4 mvp,
 	Shader* shader)
 {
-	auto pt = ProcessedTriangle(p1, p2, p3, c1, c2, c3, mvp, shader);
+	auto pt = ProcessedTriangle(p1, p2, p3, Vec3i(0, 1, 2), c1, c2, c3, mvp, shader);
 	auto t = TriangleInfo(pt.v1, pt.v2, pt.v3, pt.c1, pt.c2, pt.c3, mode, textureId, shader);
-	switch (t.mode)
-	{
-	case DrawMode::Flat:
-	case DrawMode::Shaded:
-		RasterTriangle(t);
-		break;
-	case DrawMode::Wireframe:
-		break;
-	}
+	RasterTriangle(t);
 }
 
-void DrawModel(const CMD2Model& model, DrawMode mode, uint32_t textureId, Mat4 mvp, Shader* shader)
+Vec4 VertexTransform(const MD2Vertex& vert, const Vec3& scale, const Vec3& translate, const Mat4& model)
 {
+	return model * (static_cast<Vec3>(vert) * scale + translate);
+}
+
+void DrawModel(const CMD2Model* model, DrawMode mode, uint32_t textureId, Mat4 mvp, Shader* shader)
+{
+	const auto& frames = model->GetFrames();
+	const MD2Frame& f = frames[0];
+	const auto* vertices = f.vertices;
+	const auto& scale = f.scale;
+	const auto& translate = f.translate;
+	const auto& normals = CMD2Model::NORMALS;
+	const auto texCoords = model->GetTexCoords();
+	const auto tris = model->GetTriangles();
+	for (uint32_t i = 0; i < model->GetTriangleCount(); i++)
+	{
+		const auto& tri = tris[i];
+		const auto& vert0 = vertices[tri.vertexIndices[0]];
+		const auto& vert1 = vertices[tri.vertexIndices[1]];
+		const auto& vert2 = vertices[tri.vertexIndices[2]];
+
+		Vec4 p0 = VertexTransform(vert0, scale, translate, Mat4(1.0f));
+		Vec4 p1 = VertexTransform(vert1, scale, translate, Mat4(1.0f));
+		Vec4 p2 = VertexTransform(vert2, scale, translate, Mat4(1.0f));
+
+		Vec2 uv0 = model->FixTexCoord(texCoords[tri.textureIndices[0]]);
+		Vec2 uv1 = model->FixTexCoord(texCoords[tri.textureIndices[1]]);
+		Vec2 uv2 = model->FixTexCoord(texCoords[tri.textureIndices[2]]);
+
+		Vec4 c0;
+		Vec4 c1;
+		Vec4 c2;
+
+		Vec3 n0 = normals[vert0.normal];
+		Vec3 n1 = normals[vert1.normal];
+		Vec3 n2 = normals[vert2.normal];
+
+		auto triPoints = Vec3i(tri.vertexIndices[0], tri.vertexIndices[1], tri.vertexIndices[2]);
+		auto pt = ProcessedTriangle(p0, p1, p2, triPoints, c0, c1, c2, mvp, shader);
+		auto t = TriangleInfo(pt.v1, pt.v2, pt.v3, pt.c1, pt.c2, pt.c3, mode, textureId, shader);
+		RasterTriangle(t);
+	}
 }
 
 void DrawModel(
@@ -349,12 +389,13 @@ void DrawModel(
 	const Vec2* texCoords,
 	uint32_t texCoordCount)
 {
+#pragma omp parallel for
 	for (uint32_t i = 0; i < triCount; i++)
 	{
 		const auto& tri = tris[i];
 		ASSERT_MSG(tri[0] < vertCount && tri[1] < vertCount && tri[2] < vertCount, "Invalid triangle!");
-		auto pt =
-			ProcessedTriangle(verts[tri[0]], verts[tri[1]], verts[tri[2]], Vec4::WHITE, Vec4::WHITE, Vec4::WHITE, mvp, shader);
+		auto pt = ProcessedTriangle(
+			verts[tri[0]], verts[tri[1]], verts[tri[2]], tri, Vec4::WHITE, Vec4::WHITE, Vec4::WHITE, mvp, shader);
 		auto t = TriangleInfo(pt.v1, pt.v2, pt.v3, pt.c1, pt.c2, pt.c3, mode, textureId, shader);
 		RasterTriangle(t);
 	}

@@ -233,12 +233,13 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 	_putenv("OMP_WAIT_POLICY=passive");
 
 	InitWindow();
-	InitPalette();
+	InitDemo();
 	InitColorTable();
 	InitFramebuffer();
 	InitNoise();
 	ShowWindow(g_wnd, show);
 	WindowLoop();
+	ShutdownDemo();
 	DestroyWindow(g_wnd);
 	ExitProcess(0);
 }

@@ -7,7 +7,7 @@ constexpr Vec3 CMD2Model::NORMALS[] = {
 #include "anorms.h"
 };
 
-CMD2Model::CMD2Model(byte* data, size_t size)
+CMD2Model::CMD2Model(const byte* data, size_t size)
 {
 	size_t offset = 0;
 	size_t readSize = sizeof(MD2Header);
@@ -49,8 +49,12 @@ CMD2Model::CMD2Model(byte* data, size_t size)
 
 CMD2Model::~CMD2Model()
 {
-	delete[] m_texCoords;
-	delete[] m_triangles;
-	delete[] m_frames;
-	delete[] m_vertices;
+	// indicates that a model has actually been loaded
+	if (m_header.magic == MD2_MAGIC)
+	{
+		delete[] m_texCoords;
+		delete[] m_triangles;
+		delete[] m_frames;
+		delete[] m_vertices;
+	}
 }

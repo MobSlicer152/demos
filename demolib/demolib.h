@@ -21,7 +21,6 @@ extern int g_targetFps;
 #define DEFAULT_TARGET_FPS 60
 #define FRAMEBUFFER_WIDTH  640
 #define FRAMEBUFFER_HEIGHT 480
-#define MAX_TRIANGLES	   512
 
 extern ATOM g_wndClass;
 extern HWND g_wnd;
@@ -46,9 +45,11 @@ extern Vec4 g_clearColor;
 // demo functions, provided by individual demo
 
 // here you initialize your palette, or call InitStandardPalette for a solid palette
-extern void InitPalette();
+extern void InitDemo();
 // here, you draw the current frame of your demo
 extern void DrawDemo();
+// release any stuff for your demo
+extern void ShutdownDemo();
 
 // lib functions
 
@@ -126,6 +127,11 @@ extern void ClearDepth(float z);
 // draw a line
 extern void DrawLine(const Vec3& start, const Vec3& end, const Vec4& color);
 
+// draw a character
+extern void DrawChar(int32_t x, int32_t y, char c, const Vec4& color, float size = 1.0f);
+// draw a string
+extern void DrawString(int32_t x, int32_t y, const Vec4& color, float size, const char* s, ...);
+
 // different modes of drawing
 enum class DrawMode
 {
@@ -141,6 +147,7 @@ static constexpr uint32_t INVALID_TEXTURE_ID = 0;
 struct VertexShaderInput
 {
 	Vec4 vert;
+	uint32_t vertIndex;
 	Mat4 mvp;
 	Vec4 color;
 	void* user;
@@ -190,7 +197,7 @@ extern void DrawTriangle(
 
 // draw an MD2 model
 extern void DrawModel(
-	const CMD2Model& model,
+	const CMD2Model* model,
 	DrawMode mode = DrawMode::Shaded,
 	uint32_t textureId = INVALID_TEXTURE_ID,
 	Mat4 mvp = Mat4(),

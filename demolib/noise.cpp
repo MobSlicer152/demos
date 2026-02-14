@@ -33,7 +33,9 @@ static byte GetPerm(uint32_t x)
 
 static byte PerlinHash(int32_t x, int32_t y, int32_t period)
 {
-	return GetPerm(GetPerm(x % period) + y % period);
+	int32_t xi = ((x % period) + period) % period;
+	int32_t yi = ((y % period) + period) % period;
+	return GetPerm(GetPerm(xi) + yi);
 }
 
 // just like me fr
@@ -54,8 +56,8 @@ float Perlin(const Vec2& p, uint32_t period)
 		return polyX * polyY * grad;
 	};
 
-	auto intX = (int32_t)p.x;
-	auto intY = (int32_t)p.y;
+	auto intX = (int32_t)floorf(p.x);
+	auto intY = (int32_t)floorf(p.y);
 	return surflet(intX + 0, intY + 0) + surflet(intX + 1, intY + 0) + surflet(intX + 0, intY + 1) + surflet(intX + 1, intY + 1);
 }
 
