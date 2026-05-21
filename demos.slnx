@@ -4,5 +4,6 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="demo1/demo1.vcxproj" Id="cee30785-c6be-4e60-b43c-3cff5a9303ba" />
+  <Project Path="demo2/demo2.vcxproj" Id="d73ec10c-7852-4d7d-8afc-460656b6994a" />
   <Project Path="demolib/demolib.vcxproj" Id="146a8391-8154-405e-8ece-6b27f276549f" />
 </Solution>

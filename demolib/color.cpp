@@ -131,7 +131,7 @@ void InitStandardPalette()
 
 void InitColorTable()
 {
-#pragma omp parallel for collapse(3)
+//#pragma omp parallel for collapse(3)
 	for (int r = 0; r < COLORTAB_PERCOLOR; r++)
 	{
 		for (int g = 0; g < COLORTAB_PERCOLOR; g++)

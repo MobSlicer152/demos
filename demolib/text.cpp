@@ -6,7 +6,7 @@ void DrawChar(int32_t x, int32_t y, char c, const Vec4& color, float size)
 {
 	c &= 0x7F;
 	const auto& b = font8x8_basic[c];
-#pragma omp parallel for
+//#pragma omp parallel for
 	for (uint32_t i = 0; i < (uint32_t)(ArraySize(b) * size); i++)
 	{
 		for (uint32_t j = 0; j < (uint32_t)(8 * size); j++)

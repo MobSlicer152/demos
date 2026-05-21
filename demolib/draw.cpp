@@ -227,7 +227,7 @@ static void RasterTriangle(const TriangleInfo& t)
 		return;
 	}
 
-#pragma omp parallel for collapse(2)
+//#pragma omp parallel for collapse(2)
 	for (int32_t y = minY; y <= maxY; y++)
 	{
 		for (int32_t x = minX; x <= maxX; x++)
@@ -345,7 +345,7 @@ void DrawModel(const CMD2Model* model, DrawMode mode, uint32_t textureId, Mat4 m
 	const auto& normals = CMD2Model::NORMALS;
 	const auto texCoords = model->GetTexCoords();
 	const auto tris = model->GetTriangles();
-#pragma omp parallel for
+//#pragma omp parallel for
 	for (uint32_t i = 0; i < model->GetTriangleCount(); i++)
 	{
 		const auto& tri = tris[i];
@@ -390,7 +390,7 @@ void DrawModel(
 	const Vec2* texCoords,
 	uint32_t texCoordCount)
 {
-#pragma omp parallel for
+//#pragma omp parallel for
 	for (uint32_t i = 0; i < triCount; i++)
 	{
 		const auto& tri = tris[i];

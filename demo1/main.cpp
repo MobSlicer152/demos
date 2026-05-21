@@ -11,9 +11,13 @@ static Vec3i s_planeTris[PLANE_TRI_COUNT];
 static void GeneratePlane();
 static CMD2Model* s_heart;
 
-void InitDemo()
+void InitDemoPalette()
 {
 	InitStandardPalette();
+}
+
+void InitDemo()
+{
 	GeneratePlane();
 	s_heart = new CMD2Model(HEART_MODEL, sizeof(HEART_MODEL));
 }
@@ -91,12 +95,12 @@ void DrawDemo()
 		INVALID_TEXTURE_ID,
 		vp,
 		&planeShader);
-	DrawModel(
-		s_heart,
-		DrawMode::Wireframe,
-		INVALID_TEXTURE_ID,
-		vp * Transform(Vec3(0.0f, 0.05f, -0.5f), Quat(Vec3::LEFT, PI / 2) * Quat(Vec3::UP, g_elapsed), 0.05f).GetMatrix(),
-		&heartShader);
-	DrawString(sinf(g_elapsed) * 128 + FRAMEBUFFER_WIDTH / 2 - 160, 8, Vec4::RED, 4.0f, "I love you!");
-	DrawString(cosf(-g_elapsed) * 128 + FRAMEBUFFER_WIDTH / 2 - 160, FRAMEBUFFER_HEIGHT - 5 * 8, Vec4::RED, 4.0f, "1225 & 601");
+	//DrawModel(
+	//	s_heart,
+	//	DrawMode::Shaded,
+	//	INVALID_TEXTURE_ID,
+	//	vp * Transform(Vec3(0.0f, 0.05f, -0.5f), Quat(Vec3::LEFT, PI / 2) * Quat(Vec3::UP, g_elapsed), 0.05f).GetMatrix(),
+	//	&heartShader);
+	DrawString(sinf(g_elapsed) * 128 + FRAMEBUFFER_WIDTH / 2 - 160, 8, Vec4::RED, 4.0f, "DEMO BY");
+	DrawString(cosf(-g_elapsed) * 128 + FRAMEBUFFER_WIDTH / 2 - 160, FRAMEBUFFER_HEIGHT - 5 * 8, Vec4::RED, 4.0f, "MOBSLiCER152");
 }

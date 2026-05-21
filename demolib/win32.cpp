@@ -98,7 +98,7 @@ static void InitWindow()
 	g_wnd = CreateWindowExA(
 		0,
 		(LPSTR)g_wndClass,
-		"Demo1",
+		"Demo",
 		(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX),
 		x,
 		y,
@@ -228,15 +228,16 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 	g_cmdline = cmdline;
 
 #ifdef _DEBUG
-	_putenv("OMP_DISPLAY_ENV=verbose");
+	//_putenv("OMP_DISPLAY_ENV=verbose");
 #endif
-	_putenv("OMP_WAIT_POLICY=passive");
+	//_putenv("OMP_WAIT_POLICY=passive");
 
 	InitWindow();
-	InitDemo();
+	InitNoise();
+	InitDemoPalette();
 	InitColorTable();
 	InitFramebuffer();
-	InitNoise();
+	InitDemo();
 	ShowWindow(g_wnd, show);
 	WindowLoop();
 	ShutdownDemo();

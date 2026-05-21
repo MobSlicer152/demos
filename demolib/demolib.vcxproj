@@ -86,8 +86,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <SupportJustMyCode>false</SupportJustMyCode>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
-      <OpenMPSupport>
-      </OpenMPSupport>
+      <OpenMPSupport>false</OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
@@ -120,8 +119,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
-      <OpenMPSupport>
-      </OpenMPSupport>
+      <OpenMPSupport>false</OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
@@ -153,8 +151,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <SupportJustMyCode>false</SupportJustMyCode>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
-      <OpenMPSupport>
-      </OpenMPSupport>
+      <OpenMPSupport>false</OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
@@ -187,8 +184,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
-      <OpenMPSupport>
-      </OpenMPSupport>
+      <OpenMPSupport>false</OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>

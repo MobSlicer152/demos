@@ -45,6 +45,8 @@ extern Vec4 g_clearColor;
 // demo functions, provided by individual demo
 
 // here you initialize your palette, or call InitStandardPalette for a solid palette
+extern void InitDemoPalette();
+// post-color init
 extern void InitDemo();
 // here, you draw the current frame of your demo
 extern void DrawDemo();
