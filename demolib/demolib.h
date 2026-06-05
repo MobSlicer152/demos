@@ -1,19 +1,15 @@
 #pragma once
 
-#define _NO_CRT_STDIO_INLINE
-
 #include "camera.h"
 #include "mathfun.h"
 #include "md2.h"
 #include "misc.h"
 
-extern HINSTANCE g_inst;
-extern LPSTR g_cmdline;
 extern bool g_running;
 extern bool g_paused;
 
-extern UINT64 g_lastTime;
-extern UINT64 g_nowTime;
+extern uint64_t g_lastTime;
+extern uint64_t g_nowTime;
 extern float g_delta;
 extern float g_elapsed;
 extern int g_targetFps;
@@ -22,25 +18,32 @@ extern int g_targetFps;
 #define FRAMEBUFFER_WIDTH  640
 #define FRAMEBUFFER_HEIGHT 480
 
-extern ATOM g_wndClass;
-extern HWND g_wnd;
 extern uint32_t g_width;
 extern uint32_t g_height;
 extern float g_aspect;
-extern RECT g_wndRect;
 
 #define PALETTE_SIZE			 255
 #define STANDARD_PALETTE_COLUMNS 16
 #define STANDARD_PALETTE_ROWS	 16
 #define STANDARD_COLOR(row, col) ((row) * STANDARD_PALETTE_COLUMNS + (col))
 
-extern HBITMAP g_bitmap;
-extern PBITMAPINFO g_bitmapInfo;
 extern byte* g_framebuffer;
 extern float g_zBuffer[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
 extern uint32_t g_fbStride;
 extern bool g_autoClear;
 extern Vec4 g_clearColor;
+
+#ifdef _WIN32
+extern HINSTANCE g_inst;
+extern LPSTR g_cmdline;
+extern ATOM g_wndClass;
+extern HWND g_wnd;
+extern HBITMAP g_bitmap;
+extern PBITMAPINFO g_bitmapInfo;
+extern RECT g_wndRect;
+#else
+extern PaletteColor g_palette[PALETTE_SIZE];
+#endif
 
 // demo functions, provided by individual demo
 

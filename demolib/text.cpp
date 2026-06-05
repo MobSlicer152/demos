@@ -21,7 +21,7 @@ void DrawString(int32_t x, int32_t y, const Vec4& color, float size, const char*
 	char buf[512] = {};
 	va_list args;
 	va_start(args, s);
-	_vsnprintf_s(buf, ArraySize(buf), s, args);
+	vsnprintf(buf, ArraySize(buf), s, args);
 	va_end(args);
 
 	for (auto i = 0; i < strlen(buf); i++)

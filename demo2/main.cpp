@@ -86,9 +86,9 @@ void DrawDemo()
 	auto c1 = HsvToRgb(Vec4(c * 2 * PI, 1.0, 1.0));
 	auto c2 = HsvToRgb(Vec4(s * 2 * PI, 1.0, 1.0));
 
-	for (UINT32 x = 0; x < FRAMEBUFFER_WIDTH; x++)
+	for (uint32_t x = 0; x < FRAMEBUFFER_WIDTH; x++)
 	{
-		for (UINT32 y = 0; y < FRAMEBUFFER_HEIGHT; y++)
+		for (uint32_t y = 0; y < FRAMEBUFFER_HEIGHT; y++)
 		{
 			auto p = Vec2((float)x / FRAMEBUFFER_WIDTH, (float)y / FRAMEBUFFER_HEIGHT);
 			p = p * 2 - 1;
