@@ -2,12 +2,12 @@ export ROOT = $(shell pwd)
 export OBJ = obj
 export OUT = $(ROOT)/out
 
-export AR = llvm-ar
-export CXX = clang++
-export INCLUDES = -I$(ROOT)/demolib
-export CXXFLAGS = -g -std=gnu++26 -fms-extensions $(INCLUDES)
-export CPPFLAGS = -MMD
-export LDFLAGS = 
+export AR := llvm-ar
+export CXX := clang++
+export INCLUDES += -I$(ROOT)/demolib
+export CXXFLAGS += -g -std=gnu++26 -fms-extensions $(INCLUDES)
+export CPPFLAGS += -MMD
+export LDFLAGS += -fuse-ld=lld
 
 .PHONY: all clean demolib demo1 demo2
 

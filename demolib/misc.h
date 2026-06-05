@@ -13,6 +13,7 @@
 #include <cstring>
 #include <ctime>
 #include <omp.h>
+#include <random>
 
 #ifdef _WIN32
 #define NOMINMAX
@@ -28,6 +29,7 @@ extern "C" NTSYSAPI ULONG NTAPI RtlUniform(PULONG seed);
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <X11/extensions/Xrender.h>
 
 #ifdef __INTELLISENSE__
 #define FORCEINLINE

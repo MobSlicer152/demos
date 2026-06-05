@@ -26,13 +26,17 @@ static Window s_window;
 static uint32_t s_fbImageMem[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
 static XImage* s_fbImage;
 PaletteColor g_palette[PALETTE_SIZE];
+static Pixmap s_windowPixmap;
+static Picture s_fbSrcPic;
+static Picture s_fbDestPic;
 
-static FILE* s_urandom = fopen("/dev/urandom", "rb");
 float UniformRandom(float min, float max)
 {
-	int result = 0;
-	fread(&result, sizeof(float), 1, s_urandom);
-	return std::clamp(((float)result / UINT32_MAX) * (max - min) + min, min, max);
+	std::random_device dev;
+	std::mt19937 engine(dev());
+	std::uniform_real_distribution<float> dist(min, max);
+
+	return dist(engine);
 }
 
 uint64_t GetTickCount64()
@@ -131,6 +135,23 @@ static void InitFramebuffer()
 		ErrorMessage(EXIT_FAILURE, "failed to create framebuffer image");
 	}
 
+	s_windowPixmap = XCreatePixmap(s_display, s_window, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, s_visual.depth);
+
+	auto fmt = XRenderFindVisualFormat(s_display, DefaultVisual(s_display, DefaultScreen(s_display)));
+	XRenderPictureAttributes attrs = {};
+	s_fbSrcPic = XRenderCreatePicture(s_display, s_windowPixmap, fmt, 0, &attrs);
+	s_fbDestPic = XRenderCreatePicture(s_display, s_window, fmt, 0, &attrs);
+	
+	// set the transform to scale the framebuffer up to the window size
+	double xScale = (float)FRAMEBUFFER_WIDTH / g_width;
+	double yScale = (float)FRAMEBUFFER_HEIGHT / g_height;
+	XTransform matrix = {{
+		{XDoubleToFixed(xScale), XDoubleToFixed(0.0), XDoubleToFixed(0.0)},
+		{XDoubleToFixed(0.0), XDoubleToFixed(yScale), XDoubleToFixed(0.0)},
+		{XDoubleToFixed(0.0), XDoubleToFixed(0.0), XDoubleToFixed(1.0)},
+	}};
+	XRenderSetPictureTransform(s_display, s_fbSrcPic, &matrix);
+
 	g_fbStride = FRAMEBUFFER_WIDTH;
 }
 
@@ -202,7 +223,9 @@ static void WindowLoop()
 		// TODO: xrender
 		auto screen = DefaultScreen(s_display);
 		auto gc = DefaultGC(s_display, screen);
-		XPutImage(s_display, s_window, gc, s_fbImage, 0, 0, 0, 0, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
+		XPutImage(s_display, s_windowPixmap, gc, s_fbImage, 0, 0, 0, 0, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
+
+		XRenderComposite(s_display, PictOpSrc, s_fbSrcPic, 0, s_fbDestPic, 0, 0, 0, 0, 0, 0, g_width, g_height);
 
 		g_delta = g_paused ? 0.0f : (g_nowTime - g_lastTime) / 1000.0f;
 		SleepToNextFrame();
@@ -240,8 +263,6 @@ int main(int argc, char* argv[])
 	// ShutdownWindow();
 
 	XCloseDisplay(s_display);
-
-	fclose(s_urandom);
 
 	return 0;
 }
