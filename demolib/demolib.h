@@ -2,6 +2,15 @@
 
 #define _NO_CRT_STDIO_INLINE
 
+#include <algorithm>
+#include <concepts>
+#include <cstdio>
+#include <format>
+#include <span>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+
 #include "camera.h"
 #include "mathfun.h"
 #include "md2.h"
@@ -34,6 +43,7 @@ extern RECT g_wndRect;
 #define STANDARD_PALETTE_ROWS	 16
 #define STANDARD_COLOR(row, col) ((row) * STANDARD_PALETTE_COLUMNS + (col))
 
+extern bool g_useFramebuffer;
 extern HBITMAP g_bitmap;
 extern PBITMAPINFO g_bitmapInfo;
 extern byte* g_framebuffer;
@@ -41,6 +51,8 @@ extern float g_zBuffer[FRAMEBUFFER_WIDTH * FRAMEBUFFER_HEIGHT];
 extern uint32_t g_fbStride;
 extern bool g_autoClear;
 extern Vec4 g_clearColor;
+
+#define NO_FILE_TABLE extern "C" uint32_t g_fileTable = 0;
 
 // demo functions, provided by individual demo
 
@@ -222,3 +234,6 @@ extern void DrawModel(
 // display an error messagebox and exit the process
 extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, ...);
 extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list args);
+
+// get a file
+extern std::span<const byte> GetFile(const char* name);

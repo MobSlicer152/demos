@@ -1,6 +1,8 @@
 #include "../demolib/demolib.h"
 #include "heart.h"
 
+NO_FILE_TABLE
+
 static constexpr int32_t PLANE_SIZE = 32;
 static constexpr int32_t PLANE_EDGE_VERTICES = PLANE_SIZE * 2;
 static constexpr int32_t PLANE_QUAD_COUNT = PLANE_SIZE * PLANE_SIZE;

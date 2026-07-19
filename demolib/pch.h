@@ -9,5 +9,6 @@
 
 // add headers that you want to pre-compile here
 #include "demolib.h"
+#include "fast-lzma2.h"
 
 #endif //PCH_H

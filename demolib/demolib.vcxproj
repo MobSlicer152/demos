@@ -89,6 +89,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
+      <AdditionalIncludeDirectories>$(SolutionDir)libs;$(SolutionDir)libs\d3d12\include;$(SolutionDir)libs\d3d12\include\directx;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -122,6 +123,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
+      <AdditionalIncludeDirectories>$(SolutionDir)libs;$(SolutionDir)libs\d3d12\include;$(SolutionDir)libs\d3d12\include\directx;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -154,6 +156,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
+      <AdditionalIncludeDirectories>$(SolutionDir)libs;$(SolutionDir)libs\d3d12\include;$(SolutionDir)libs\d3d12\include\directx;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -187,6 +190,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <AdditionalOptions>/openmp:llvm</AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
+      <AdditionalIncludeDirectories>$(SolutionDir)libs;$(SolutionDir)libs\d3d12\include;$(SolutionDir)libs\d3d12\include\directx;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -212,8 +216,21 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\libs\d3d12\src\d3dx12_property_format_table.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\libs\d3d12\src\dxguids.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="color.cpp" />
+    <ClCompile Include="data.cpp" />
     <ClCompile Include="md2.cpp" />
     <ClCompile Include="noise.cpp" />
     <ClCompile Include="text.cpp" />

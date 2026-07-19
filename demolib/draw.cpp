@@ -7,8 +7,8 @@
 
 static void ViewportToFramebuffer(const Vec2& p, int32_t& x, int32_t& y)
 {
-	x = (p.x + 1.0f) * 0.5f * FRAMEBUFFER_WIDTH;
-	y = (-p.y + 1.0f) * 0.5f * FRAMEBUFFER_HEIGHT;
+	x = (int32_t)((p.x + 1.0f) * 0.5f * FRAMEBUFFER_WIDTH);
+	y = (int32_t)((-p.y + 1.0f) * 0.5f * FRAMEBUFFER_HEIGHT);
 }
 
 static Vec2 FramebufferToViewport(int32_t x, int32_t y)
@@ -394,7 +394,8 @@ void DrawModel(
 	for (uint32_t i = 0; i < triCount; i++)
 	{
 		const auto& tri = tris[i];
-		ASSERT_MSG(tri[0] < vertCount && tri[1] < vertCount && tri[2] < vertCount, "Invalid triangle!");
+		ASSERT_MSG(
+			tri[0] < (int32_t)vertCount && tri[1] < (int32_t)vertCount && tri[2] < (int32_t)vertCount, "Invalid triangle!");
 		auto pt = ProcessedTriangle(
 			verts[tri[0]], verts[tri[1]], verts[tri[2]], tri, Vec4::WHITE, Vec4::WHITE, Vec4::WHITE, mvp, shader);
 		auto t = TriangleInfo(pt.v1, pt.v2, pt.v3, pt.c1, pt.c2, pt.c3, mode, textureId, shader);

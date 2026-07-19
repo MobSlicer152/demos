@@ -22,6 +22,7 @@ uint32_t g_height;
 float g_aspect;
 RECT g_wndRect;
 
+bool g_useFramebuffer = true;
 HBITMAP g_bitmap;
 static BYTE s_rawBitmapInfo[sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 255];
 PBITMAPINFO g_bitmapInfo = (PBITMAPINFO)s_rawBitmapInfo;
@@ -31,9 +32,9 @@ uint32_t g_fbStride;
 bool g_autoClear = true;
 Vec4 g_clearColor = Vec4::BLACK;
 
-#define CLASSNAME "Demo1"
+#define CLASSNAME "DemoWnd"
 
-static ULONG s_randomSeed = GetTickCount64();
+static ULONG s_randomSeed = (ULONG)GetTickCount64();
 float UniformRandom(float min, float max)
 {
 	return std::clamp(((float)RtlUniform(&s_randomSeed) / MAXLONG) * (max - min) + min, min, max);
@@ -88,8 +89,8 @@ static void InitWindow()
 	int captionHeight = GetSystemMetrics(SM_CYCAPTION);
 
 	// make a nice 4:3 that's 3/4 the height of the monitor
-	g_height = (screenHeight * 0.75) + frameHeight;
-	g_width = g_height * 1.33333f;
+	g_height = (uint32_t)((screenHeight * 0.75f) + frameHeight);
+	g_width = (uint32_t)(g_height * 1.33333f);
 
 	// centre and account for caption
 	int x = (screenWidth - g_width) / 2;
@@ -183,7 +184,7 @@ static void WindowLoop()
 			DispatchMessage(&msg);
 		}
 
-		if (g_autoClear)
+		if (g_autoClear && g_useFramebuffer)
 		{
 			DrawRectangle(Vec2(0.0f), Vec2(1.0f), g_clearColor);
 			ClearColor(g_clearColor);
@@ -192,22 +193,25 @@ static void WindowLoop()
 
 		DrawDemo();
 
-		auto dc = GetDC(g_wnd);
-		StretchDIBits(
-			dc,
-			0,
-			g_height - 1,
-			g_width,
-			-g_height,
-			0,
-			0,
-			FRAMEBUFFER_WIDTH,
-			FRAMEBUFFER_HEIGHT,
-			g_framebuffer,
-			g_bitmapInfo,
-			DIB_RGB_COLORS,
-			SRCCOPY);
-		ReleaseDC(g_wnd, dc);
+		if (g_useFramebuffer)
+		{
+			auto dc = GetDC(g_wnd);
+			StretchDIBits(
+				dc,
+				0,
+				g_height - 1,
+				g_width,
+				-(int32_t)g_height,
+				0,
+				0,
+				FRAMEBUFFER_WIDTH,
+				FRAMEBUFFER_HEIGHT,
+				g_framebuffer,
+				g_bitmapInfo,
+				DIB_RGB_COLORS,
+				SRCCOPY);
+			ReleaseDC(g_wnd, dc);
+		}
 
 		g_delta = g_paused ? 0.0f : (g_nowTime - g_lastTime) / 1000.0f;
 		SleepToNextFrame();
@@ -215,6 +219,9 @@ static void WindowLoop()
 		g_lastTime = g_nowTime;
 	}
 }
+
+// prepares space for files to be decompressed
+extern void InitFileTable();
 
 // calculates similar colors for dithering
 extern void InitColorTable();
@@ -232,11 +239,15 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 #endif
 	//_putenv("OMP_WAIT_POLICY=passive");
 
+	InitFileTable();
 	InitWindow();
 	InitNoise();
 	InitDemoPalette();
-	InitColorTable();
-	InitFramebuffer();
+	if (g_useFramebuffer)
+	{
+		InitColorTable();
+		InitFramebuffer();
+	}
 	InitDemo();
 	ShowWindow(g_wnd, show);
 	WindowLoop();
@@ -245,7 +256,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 	ExitProcess(0);
 }
 
-extern "C" void DemoEntry()
+void main()
 {
 	WinMain(GetModuleHandleA(nullptr), nullptr, GetCommandLineA(), SW_SHOWNORMAL);
 }
