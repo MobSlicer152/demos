@@ -3,19 +3,31 @@
 void SetColor(byte index, byte r, byte g, byte b)
 {
 	// index = index % PALETTE_SIZE;
+#ifdef _WIN32
 	auto& colors = g_bitmapInfo->bmiColors;
 	colors[index].rgbRed = r;
 	colors[index].rgbGreen = g;
 	colors[index].rgbBlue = b;
+#else
+	g_palette[index].r = r;
+	g_palette[index].g = g;
+	g_palette[index].b = b;
+#endif
 }
 
 void GetColor(byte index, byte& r, byte& g, byte& b)
 {
 	// index = index % PALETTE_SIZE;
+#ifdef _WIN32
 	auto& colors = g_bitmapInfo->bmiColors;
 	r = colors[index].rgbRed;
 	g = colors[index].rgbGreen;
 	b = colors[index].rgbBlue;
+#else
+	r = g_palette[index].r;
+	g = g_palette[index].g;
+	b = g_palette[index].b;
+#endif
 }
 
 // bits per colour in colour table, [1..8] are allowed. more than 6 is heavy on memory and startup (>1mb and a few second delay).

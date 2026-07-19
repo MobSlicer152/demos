@@ -36,9 +36,9 @@ CMD2Model::CMD2Model(const byte* data, size_t size)
 	for (int32_t i = 0; i < m_header.numFrames; i++)
 	{
 		m_frames[i].vertices = m_vertices + i * m_header.numVertices;
-		memcpy(&m_frames[i].scale, data + offset, sizeof(Vec3));
+		memcpy((void*)&m_frames[i].scale, data + offset, sizeof(Vec3));
 		offset += sizeof(Vec3);
-		memcpy(&m_frames[i].translate, data + offset, sizeof(Vec3));
+		memcpy((void*)&m_frames[i].translate, data + offset, sizeof(Vec3));
 		offset += sizeof(Vec3);
 		memcpy(m_frames[i].name, data + offset, ArraySize(m_frames[i].name));
 		offset += ArraySize(m_frames[i].name);

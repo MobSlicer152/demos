@@ -71,7 +71,7 @@
     <ClCompile Include="..\libs\d3d12\src\d3dx12_property_format_table.cpp">
       <Filter>Source Files\D3D12</Filter>
     </ClCompile>
-    <ClCompile Include="data.cpp">
+    <ClCompile Include="files.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

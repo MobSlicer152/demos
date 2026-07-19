@@ -230,7 +230,7 @@
     </ClCompile>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="color.cpp" />
-    <ClCompile Include="data.cpp" />
+    <ClCompile Include="files.cpp" />
     <ClCompile Include="md2.cpp" />
     <ClCompile Include="noise.cpp" />
     <ClCompile Include="text.cpp" />

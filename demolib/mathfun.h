@@ -137,13 +137,13 @@ struct Vec2
 
 	float operator[](size_t idx) const
 	{
-		ASSERT((idx < ArraySize(values), "Vector index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(values), "Vector index out of bounds");
 		return values[idx];
 	}
 
 	float& operator[](size_t idx)
 	{
-		ASSERT((idx < ArraySize(values), "Vector index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(values), "Vector index out of bounds");
 		return values[idx];
 	}
 
@@ -276,13 +276,13 @@ struct Vec3
 
 	float operator[](size_t idx) const
 	{
-		ASSERT((idx < ArraySize(values), "Vector index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(values), "Vector index out of bounds");
 		return values[idx];
 	}
 
 	float& operator[](size_t idx)
 	{
-		ASSERT((idx < ArraySize(values), "Vector index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(values), "Vector index out of bounds");
 		return values[idx];
 	}
 
@@ -430,13 +430,13 @@ struct Vec3i
 
 	int operator[](size_t idx) const
 	{
-		ASSERT((idx < ArraySize(values), "Vector index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(values), "Vector index out of bounds");
 		return values[idx];
 	}
 
 	int& operator[](size_t idx)
 	{
-		ASSERT((idx < ArraySize(values), "Vector index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(values), "Vector index out of bounds");
 		return values[idx];
 	}
 
@@ -492,7 +492,7 @@ struct Vec4
 			float h; // radians
 			float s;
 			float v;
-			float a;
+			//float a;
 		};
 		float values[4];
 	};
@@ -575,13 +575,13 @@ struct Vec4
 
 	float operator[](size_t idx) const
 	{
-		ASSERT((idx < ArraySize(values), "Vector index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(values), "Vector index out of bounds");
 		return values[idx];
 	}
 
 	float& operator[](size_t idx)
 	{
-		ASSERT((idx < ArraySize(values), "Vector index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(values), "Vector index out of bounds");
 		return values[idx];
 	}
 
@@ -881,13 +881,13 @@ struct Mat4
 
 	Vec4 operator[](size_t idx) const
 	{
-		ASSERT((idx < ArraySize(columns), "Matrix index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(columns), "Matrix index out of bounds");
 		return columns[idx];
 	}
 
 	Vec4& operator[](size_t idx)
 	{
-		ASSERT((idx < ArraySize(columns), "Matrix index out of bounds"));
+		ASSERT_MSG(idx < ArraySize(columns), "Matrix index out of bounds");
 		return columns[idx];
 	}
 

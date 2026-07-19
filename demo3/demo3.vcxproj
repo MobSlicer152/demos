@@ -106,7 +106,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86;$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
+      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -136,7 +136,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86;$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
+      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -165,7 +165,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform);$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
+      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -195,7 +195,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform);$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;ntdll_libc.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
+      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>

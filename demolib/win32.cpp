@@ -9,8 +9,8 @@ LPSTR g_cmdline;
 bool g_running;
 bool g_paused;
 
-UINT64 g_lastTime;
-UINT64 g_nowTime;
+uint64_t g_lastTime;
+uint64_t g_nowTime;
 float g_delta;
 float g_elapsed;
 int g_targetFps = DEFAULT_TARGET_FPS;
@@ -121,14 +121,14 @@ static void InitWindow()
 	g_aspect = (float)g_width / g_height;
 }
 
-extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, ...)
+DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, ...)
 {
 	va_list args;
 	va_start(args, msg);
 	ErrorMessage(code, msg, args);
 }
 
-extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list args)
+DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list args)
 {
 	char buf[512] = {}; // avoid allocation since it could be the cause of the error
 	_vsnprintf_s(buf, ArraySize(buf), msg, args);
