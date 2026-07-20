@@ -6,6 +6,7 @@
 #include <concepts>
 #include <cstdio>
 #include <format>
+#include <mutex>
 #include <span>
 #include <string>
 #include <string_view>
@@ -45,7 +46,8 @@ extern uint32_t g_fbStride;
 extern bool g_autoClear;
 extern Vec4 g_clearColor;
 
-#define NO_FILE_TABLE extern "C" uint32_t g_fileTable = 0;
+#define MINIMUM_FILE_TABLE_SIZE (sizeof(uint32_t) * 2) // origSize and totalSize
+#define NO_FILE_TABLE extern "C" uint32_t g_fileTable[MINIMUM_FILE_TABLE_SIZE] = {};
 
 #ifdef _WIN32
 extern HINSTANCE g_inst;

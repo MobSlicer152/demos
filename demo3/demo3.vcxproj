@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Direct3D.D3D12.1.619.4\build\native\Microsoft.Direct3D.D3D12.props" Condition="Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.4\build\native\Microsoft.Direct3D.D3D12.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -106,10 +107,18 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86;$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
+      <AdditionalDependencies>liblzma.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -136,10 +145,18 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86;$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
+      <AdditionalDependencies>liblzma.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -165,10 +182,18 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform);$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
+      <AdditionalDependencies>liblzma.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -195,7 +220,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform);$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>fast-lzma2.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
+      <AdditionalDependencies>liblzma.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -205,8 +230,18 @@
     <PostBuildEvent>
       <Message>Packing executable</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="$(IntDir)demo.pak.cpp" />
+    <ClCompile Include="d3d12.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -214,7 +249,45 @@
       <Project>{146a8391-8154-405e-8ece-6b27f276549f}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="prepare_assets.bat">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)prepare_assets.bat $(IntDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)demo.pak.cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)prepare_assets.bat $(IntDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)demo.pak.cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)prepare_assets.bat $(IntDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)demo.pak.cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)prepare_assets.bat $(IntDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)demo.pak.cpp</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="shaders.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="demo3.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.Direct3D.D3D12.1.619.4\build\native\Microsoft.Direct3D.D3D12.targets" Condition="Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.4\build\native\Microsoft.Direct3D.D3D12.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.4\build\native\Microsoft.Direct3D.D3D12.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Direct3D.D3D12.1.619.4\build\native\Microsoft.Direct3D.D3D12.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.4\build\native\Microsoft.Direct3D.D3D12.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Direct3D.D3D12.1.619.4\build\native\Microsoft.Direct3D.D3D12.targets'))" />
+  </Target>
 </Project>

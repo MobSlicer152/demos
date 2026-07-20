@@ -93,7 +93,7 @@ void DrawDemo()
 		for (uint32_t y = 0; y < FRAMEBUFFER_HEIGHT; y++)
 		{
 			auto p = Vec2((float)x / FRAMEBUFFER_WIDTH, (float)y / FRAMEBUFFER_HEIGHT);
-			p = p * 2 - 1;
+			p = p * 2 - 1.0f;
 			auto shift = Perlin(Vec2(p.x + s * 3, p.y + c * 3) * 2.0f, 8.0f);
 			auto color = Lerp(c1, c2, shift + 0.75f) * 0.8f;
 			SetPixel(x, y, color);

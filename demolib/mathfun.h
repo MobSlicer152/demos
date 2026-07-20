@@ -79,6 +79,16 @@ struct Vec2
 	{
 	}
 
+	operator float*()
+	{
+		return values;
+	}
+
+	operator const float*() const
+	{
+		return values;
+	}
+
 	Vec2 operator+(const Vec2& other) const
 	{
 		return Vec2(x + other.x, y + other.y);
@@ -216,6 +226,16 @@ struct Vec3
 
 	constexpr Vec3(const Vec2& other, float z = 0.0f) : Vec3(other.x, other.y, z)
 	{
+	}
+
+	operator float*()
+	{
+		return values;
+	}
+
+	operator const float*() const
+	{
+		return values;
 	}
 
 	Vec3 operator+(const Vec3& other) const
@@ -382,6 +402,16 @@ struct Vec3i
 	{
 	}
 
+	operator int*()
+	{
+		return values;
+	}
+
+	operator const int*() const
+	{
+		return values;
+	}
+
 	Vec3i operator+(const Vec3i& other) const
 	{
 		return Vec3i(x + other.x, y + other.y, z + other.z);
@@ -492,7 +522,7 @@ struct Vec4
 			float h; // radians
 			float s;
 			float v;
-			//float a;
+			// float a;
 		};
 		float values[4];
 	};
@@ -515,6 +545,16 @@ struct Vec4
 
 	constexpr Vec4(const Vec2& other, float z = 0.0f, float w = 1.0f) : Vec4(other.x, other.y, z, w)
 	{
+	}
+
+	operator float*()
+	{
+		return values;
+	}
+
+	operator const float*() const
+	{
+		return values;
 	}
 
 	Vec4 operator+(const Vec4& other) const
@@ -682,6 +722,16 @@ struct Quat
 		float s = sinf(half);
 		float c = cosf(half);
 		return Quat(v.x * s, v.y * s, v.z * s, len * c).Normalize();
+	}
+
+	operator float*()
+	{
+		return values;
+	}
+
+	operator const float*() const
+	{
+		return values;
 	}
 
 	// Quat(const Vec3& euler)
