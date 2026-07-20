@@ -8,3 +8,4 @@ x64/
 obj/
 out/
 *.o
+packages/
