@@ -33,13 +33,15 @@ StructuredBuffer<Particle> particles : register(t1);
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    float2 ray = (input.uv * 2.0 - 1.0) * float2(aspect, 1.0);
+    float2 aspectScale = float2(aspect, 1.0);
+    float2 scaledUv = input.uv * aspectScale;
+    float2 ray = (input.uv * 2.0 - 1.0) * aspectScale;
     uint particleCount;
     uint particleStride;
     particles.GetDimensions(particleCount, particleStride);
     for (uint i = 0; i < particleCount; i++)
     {
-        if (length(abs(input.uv - particles[i].position)) < particles[i].size)
+        if (length(abs(ray - particles[i].position * aspectScale)) < particles[i].size)
         {
             return float4(1.0, 1.0, 1.0, 1.0);
         }
