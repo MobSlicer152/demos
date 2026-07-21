@@ -26,6 +26,13 @@ struct Vertex
 {
 	Vec4 position;
 	Vec4 color;
+	Vec2 uv;
+};
+
+struct Particle
+{
+	Vec2 position;
+	float radius;
 };
 
 class Demo3
@@ -65,6 +72,8 @@ class Demo3
 	uint32_t m_rtvDescriptorSize = 0;
 	ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
 	uint32_t m_dsvDescriptorSize = 0;
+	ComPtr<ID3D12DescriptorHeap> m_shaderHeap;
+	uint32_t m_shaderDescriptorSize = 0;
 	ComPtr<ID3D12PipelineState> m_pipelineState;
 	ComPtr<ID3D12GraphicsCommandList> m_commandList;
 
@@ -73,7 +82,7 @@ class Demo3
 	ComPtr<ID3D12CommandAllocator> m_transferAllocator;
 	ComPtr<ID3D12GraphicsCommandList> m_transferCommandList;
 	ComPtr<ID3D12Resource> m_transferBuffer;
-	std::span<byte> m_transferBufferPtr;
+	std::span<byte> m_transferBufferView;
 	size_t m_transferBufferOffset = 0;
 	HANDLE m_transferFenceEvent = nullptr;
 	ComPtr<ID3D12Fence> m_transferFence;
@@ -90,6 +99,12 @@ class Demo3
 	HANDLE m_fenceEvent = nullptr;
 	ComPtr<ID3D12Fence> m_fence;
 	uint64_t m_fenceValue = 0;
+
+	// particle buffer
+	ComPtr<ID3D12Resource> m_particleBuffer;
+	std::span<Particle> m_particleBufferView;
+	std::vector<Particle> m_particles;
+	static constexpr size_t MAX_PARTICLES = 128;
 
 	// create command stuff
 	HRESULT CreateCommandStuff(

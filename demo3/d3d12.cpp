@@ -52,8 +52,8 @@ void Demo3::InitD3D12()
 	// transfer buffer
 	auto transferBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(TRANSFER_BUFFER_SIZE);
 	CHECK_HRESULT(
-		CreateResource(&m_transferBuffer, transferBufferDesc, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_HEAP_TYPE_GPU_UPLOAD));
-	m_transferBufferPtr = MapResource<byte>(m_transferBuffer, TRANSFER_BUFFER_SIZE);
+		CreateResource(&m_transferBuffer, transferBufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD));
+	m_transferBufferView = MapResource<byte>(m_transferBuffer, TRANSFER_BUFFER_SIZE);
 
 	// transfer fence
 	CHECK_HRESULT(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_transferFence)));
@@ -83,8 +83,14 @@ void Demo3::InitD3D12()
 	// disable alt-enter fullscreening
 	CHECK_HRESULT(m_factory->MakeWindowAssociation(g_wnd, DXGI_MWA_NO_ALT_ENTER));
 
-	CreateDescriptorHeap(&m_rtvHeap, m_rtvDescriptorSize, FRAME_COUNT, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	CreateDescriptorHeap(&m_dsvHeap, m_dsvDescriptorSize, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	CHECK_HRESULT(CreateDescriptorHeap(&m_rtvHeap, m_rtvDescriptorSize, FRAME_COUNT, D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
+	CHECK_HRESULT(CreateDescriptorHeap(&m_dsvHeap, m_dsvDescriptorSize, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV));
+	CHECK_HRESULT(CreateDescriptorHeap(
+		&m_shaderHeap,
+		m_shaderDescriptorSize,
+		1,
+		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
 
 	// frame resources
 	auto rtvHandle = GetRTVHandle(0);
@@ -101,8 +107,17 @@ void Demo3::InitD3D12()
 void Demo3::LoadAssets()
 {
 	// root signature
-	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-	rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	// aspect, time, etc
+	CD3DX12_ROOT_PARAMETER constants = {};
+	constants.InitAsConstants(3, 0);
+	// particle buffer
+	CD3DX12_DESCRIPTOR_RANGE descriptorRange;
+	descriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
+	CD3DX12_ROOT_PARAMETER descriptorTable = {};
+	descriptorTable.InitAsDescriptorTable(1, &descriptorRange);
+	D3D12_ROOT_PARAMETER rootParams[] = {constants, descriptorTable};
+	auto rootSignatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(
+		ArraySize(rootParams), rootParams, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
@@ -128,6 +143,7 @@ void Demo3::LoadAssets()
 	pipelineDesc.VS = {vertShader.data(), vertShader.size()};
 	pipelineDesc.PS = {pixelShader.data(), pixelShader.size()};
 	pipelineDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	pipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	pipelineDesc.DepthStencilState.DepthEnable = false; // TODO: depth buffer
 	pipelineDesc.DepthStencilState.StencilEnable = false;
@@ -144,7 +160,11 @@ void Demo3::LoadAssets()
 		0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_directAllocator.Get(), m_pipelineState.Get(), IID_PPV_ARGS(&m_commandList)));
 	CHECK_HRESULT(m_commandList->Close()); // take out of recording
 
-	// TODO: models
+	// particle buffer
+	auto particleBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(MAX_PARTICLES * sizeof(Particle));
+	CHECK_HRESULT(CreateResource(
+		&m_particleBuffer, particleBufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD));
+	m_particleBufferView = MapResource<Particle>(m_particleBuffer, MAX_PARTICLES);
 
 	// sync stuff
 	CHECK_HRESULT(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
@@ -177,6 +197,9 @@ void Demo3::PrepareFrame()
 	// set the render target
 	auto rtvHandle = GetRTVHandle(m_frameIndex);
 	m_commandList->OMSetRenderTargets(1, &rtvHandle, false, nullptr); // TODO: depth buffer
+
+	// set descriptor heaps
+	m_commandList->SetDescriptorHeaps(1, m_shaderHeap.GetAddressOf());
 }
 
 void Demo3::FinishFrame()
@@ -256,12 +279,7 @@ HRESULT Demo3::CreateResource(
 {
 	auto heapProps = CD3DX12_HEAP_PROPERTIES(heap);
 	return m_device->CreateCommittedResource(
-		&heapProps,
-		D3D12_HEAP_FLAG_NONE,
-		&desc,
-		initialState,
-		nullptr,
-		IID_PPV_ARGS(resource));
+		&heapProps, D3D12_HEAP_FLAG_NONE, &desc, initialState, nullptr, IID_PPV_ARGS(resource));
 }
 
 void Demo3::WaitForPreviousFrame()
@@ -339,7 +357,7 @@ void Demo3::UploadData(std::span<byte> src, ComPtr<ID3D12Resource> dest, uint64_
 	}
 
 	// copy to the cpu mapped address
-	std::copy(src.begin(), src.end(), m_transferBufferPtr.begin() + m_transferBufferOffset);
+	std::copy(src.begin(), src.end(), m_transferBufferView.begin() + m_transferBufferOffset);
 	// copy the gpu buffer to the target resource
 	m_transferCommandList->CopyBufferRegion(dest.Get(), destOffset, m_transferBuffer.Get(), m_transferBufferOffset, src.size());
 
