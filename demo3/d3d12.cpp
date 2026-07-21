@@ -219,7 +219,7 @@ void Demo3::FinishFrame()
 	m_directQueue->ExecuteCommandLists(ArraySize(commandLists), commandLists);
 
 	// present and wait for the last frame to finish
-	CHECK_HRESULT(m_swapChain->Present(1, 0));
+	CHECK_HRESULT(m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING));
 	WaitForPreviousFrame();
 }
 

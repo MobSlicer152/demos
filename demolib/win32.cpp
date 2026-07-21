@@ -14,6 +14,9 @@ uint64_t g_nowTime;
 float g_delta;
 float g_elapsed;
 int g_targetFps = DEFAULT_TARGET_FPS;
+int g_framesSinceAverage = 0;
+uint64_t g_lastAverage;
+float g_averageFps;
 
 ATOM g_wndClass;
 HWND g_wnd;
@@ -173,6 +176,7 @@ static void SleepToNextFrame()
 static void WindowLoop()
 {
 	g_lastTime = GetTickCount64();
+	g_lastAverage = g_lastTime;
 	g_running = true;
 	while (g_running)
 	{
@@ -217,6 +221,23 @@ static void WindowLoop()
 		SleepToNextFrame();
 		g_elapsed += g_delta;
 		g_lastTime = g_nowTime;
+
+		if (g_paused)
+		{
+			SetWindowTextA(g_wnd, "Demo - PAUSED");
+		}
+		else
+		{
+			g_framesSinceAverage++;
+			if (g_framesSinceAverage > FRAMES_PER_AVERAGE)
+			{
+				float fpms = (float)g_framesSinceAverage / (g_nowTime - g_lastAverage);
+				g_averageFps = fpms * 1000.0;
+				SetWindowTextA(g_wnd, std::format("Demo - {:.2f} FPS / {:.1f} ms", g_averageFps, 1.0 / fpms).c_str());
+				g_lastAverage = g_nowTime;
+				g_framesSinceAverage = 0;
+			}
+		}
 	}
 }
 

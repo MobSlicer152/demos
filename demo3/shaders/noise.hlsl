@@ -15,3 +15,19 @@ float Perlin(float2 p)
                 lerp(dot(Hash(i + float2(0.0, 1.0)), f - float2(0.0, 1.0)),
                      dot(Hash(i + float2(1.0, 1.0)), f - float2(1.0, 1.0)), u.x), u.y);
 }
+
+float fBM(float2 p, int octaves, float lacunarity, float gain)
+{
+    float a = 0.5;
+    float freq = 1;
+    float result = 0;
+    for (int i = 0; i < octaves; i++)
+    {
+        result += a * Perlin(freq * p);
+        freq *= lacunarity;
+        a *= gain;
+    }
+
+    return result;
+}
+

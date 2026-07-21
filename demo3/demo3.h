@@ -50,6 +50,9 @@ class Demo3
 	// prepare to record draw commands
 	void PrepareFrame();
 
+	// update
+	void Update();
+
 	// draw
 	void Draw();
 

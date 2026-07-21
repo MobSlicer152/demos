@@ -41,11 +41,20 @@ float4 PSMain(PSInput input) : SV_TARGET
     particles.GetDimensions(particleCount, particleStride);
     for (uint i = 0; i < particleCount; i++)
     {
-        if (length(abs(ray - particles[i].position * aspectScale)) < particles[i].size)
+        float dist = length(abs(ray - particles[i].position * aspectScale)) / particles[i].size;
+        float borderDist = 1.0 - dist;
+        if (dist < 1.0)
         {
-            return float4(1.0, 1.0, 1.0, 1.0);
+            if (borderDist < 0.05)
+            {
+                return float4(1.0, 1.0, 1.0, 1.0);
+            }
+            else
+            {
+                return float4(0.0, 0.0, 0.0, 1.0);
+            }
         }
     }
     
-    return Perlin((ray - float2(time * speed, 0)));
+    return fBM((ray - float2(time * speed, 0)), 8, 2, 0.5);
 }

@@ -25,8 +25,12 @@ extern uint64_t g_nowTime;
 extern float g_delta;
 extern float g_elapsed;
 extern int g_targetFps;
+extern int g_framesSinceAverage;
+extern uint64_t g_lastAverage;
+extern float g_averageFps;
 
-#define DEFAULT_TARGET_FPS 60
+#define FRAMES_PER_AVERAGE 10
+#define DEFAULT_TARGET_FPS 1000
 #define FRAMEBUFFER_WIDTH  640
 #define FRAMEBUFFER_HEIGHT 480
 

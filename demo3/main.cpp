@@ -1,6 +1,6 @@
 #include "demo3.h"
 
-void Demo3::Draw()
+void Demo3::Update()
 {
 	// generate particles
 	m_particles.resize(0);
@@ -8,7 +8,10 @@ void Demo3::Draw()
 	{
 		m_particles.push_back(Particle(Vec2(UniformRandom(-1.0), UniformRandom(-1.0)), 0.1 * UniformRandom()));
 	}
+}
 
+void Demo3::Draw()
+{
 	// copy particles in and update the view
 	auto particles = std::span(m_particles.begin(), std::min(m_particles.size(), m_particleBufferView.size()));
 	if (particles.size() > 0)
@@ -44,6 +47,11 @@ void InitDemo()
 
 void DrawDemo()
 {
+	if (!g_paused)
+	{
+		demo->Update();
+	}
+
 	demo->PrepareFrame();
 	demo->Draw();
 	demo->FinishFrame();
