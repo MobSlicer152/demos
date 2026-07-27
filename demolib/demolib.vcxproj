@@ -220,7 +220,7 @@
     <ClCompile Include="color.cpp" />
     <ClCompile Include="files.cpp" />
     <ClCompile Include="md2.cpp" />
-    <ClCompile Include="noise.cpp" />
+    <ClCompile Include="util.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="win32.cpp" />
     <ClCompile Include="draw.cpp" />

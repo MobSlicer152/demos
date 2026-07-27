@@ -21,8 +21,20 @@ struct FileTable
 
 extern "C" FileTable g_fileTable;
 
+struct MapEntry
+{
+	uint64_t hash = 0;
+	std::span<const byte> data;
+
+	MapEntry() = default;
+	MapEntry(const char* name, std::span<const byte> data) : data(data)
+	{
+		hash = FNV(std::span<const byte>((const byte*)name, strnlen(name, sizeof(FileEntry::name))));
+	}
+};
+
 // loaded file table
-static std::unordered_map<std::string_view, std::span<const byte>> s_fileMap;
+static MapEntry* s_fileMap;
 // all decompressed file data
 static byte* s_fileData;
 // size of all data
@@ -41,32 +53,37 @@ void InitFileTable()
 	s_fileData = new byte[tab.origSize];
 	auto src = std::span((byte*)&tab.entries[tab.entryCount], tab.totalSize);
 	auto dest = std::span(s_fileData, tab.origSize);
+	s_fileMap = new MapEntry[tab.entryCount];
 
 	// decompress all files
-	uint64_t memLimit = 2 * 1024 * 1024 * 1024;
+	uint64_t memLimit = 2ull * 1024 * 1024 * 1024;
 	size_t inPos = 0;
 	size_t outPos = 0;
-	auto result =
-		lzma_stream_buffer_decode(&memLimit, 0, nullptr, src.data(), &inPos, src.size(), dest.data(), &outPos, dest.size());
-	if (result != LZMA_OK)
+	auto result = ZSTD_decompress(dest.data(), dest.size(), src.data(), src.size());
+	if (ZSTD_isError(result))
 	{
-		ErrorMessage(result, "failed to decompress files: error %d", result);
+		ErrorMessage(result, "failed to decompress files: %s", ZSTD_getErrorName(result));
 	}
 
 	// map them
 	size_t offset = 0;
-	std::for_each_n(tab.entries, tab.entryCount, [&](const auto& entry) {
-		s_fileMap[entry.name] = std::span(s_fileData + offset, entry.size);
+	for (uint32_t i = 0; i < tab.entryCount; i++)
+	{
+		auto& entry = tab.entries[i];
+		s_fileMap[i] = MapEntry(entry.name, std::span(s_fileData + offset, entry.size));
 		offset += entry.size;
-	});
+	};
 }
 
 std::span<const byte> GetFile(const char* name)
 {
-	auto found = s_fileMap.find(name);
-	if (found != s_fileMap.end())
+	auto hash = FNV(std::span<const byte>((const byte*)name, strlen(name)));
+	for (uint32_t i = 0; i < g_fileTable.entryCount; i++)
 	{
-		return found->second;
+		if (s_fileMap[i].hash == hash)
+		{
+			return s_fileMap[i].data;
+		}
 	}
 
 	return {};

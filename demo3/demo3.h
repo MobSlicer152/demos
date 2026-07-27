@@ -4,7 +4,13 @@
 #include "../libs/utf8.h"
 #include "d3d12.h"
 #include "d3dx12.h"
+#include <algorithm>
+#include <any>
+#include <array>
+#include <cstdio>
 #include <dxgi1_6.h>
+#include <span>
+#include <string_view>
 #include <windows.h>
 #include <wrl/client.h>
 
@@ -33,7 +39,10 @@ struct Particle
 {
 	Vec2 position;
 	float radius;
+	int layer;
 };
+
+class SmokeSimulation;
 
 class Demo3
 {
@@ -67,7 +76,7 @@ class Demo3
 	DXGI_ADAPTER_DESC3 m_adapterDesc = {};
 
 	// device and graphics stuff
-	ComPtr<ID3D12Device7> m_device;
+	ComPtr<ID3D12Device6> m_device;
 	ComPtr<ID3D12CommandQueue> m_directQueue;
 	ComPtr<ID3D12CommandAllocator> m_directAllocator;
 	ComPtr<ID3D12RootSignature> m_rootSignature;
@@ -103,11 +112,43 @@ class Demo3
 	ComPtr<ID3D12Fence> m_fence;
 	uint64_t m_fenceValue = 0;
 
-	// particle buffer
+	// shader inputs
+	union RootParam {
+		float f;
+		int i;
+
+		static RootParam Float(float f)
+		{
+
+			return *(RootParam*)&f;
+		}
+
+		static RootParam Int(int i)
+		{
+			return *(RootParam*)&i;
+		}
+	};
+	std::array<RootParam, 8> m_rootParams;
 	ComPtr<ID3D12Resource> m_particleBuffer;
 	std::span<Particle> m_particleBufferView;
 	std::vector<Particle> m_particles;
 	static constexpr size_t MAX_PARTICLES = 128;
+
+	enum Scene : int
+	{
+		LoopingTheRooms,
+		FountainStab,
+		FountainStart,
+		FountainGrow,
+		FountainSmoke,
+		SceneCount
+	};
+
+	static constexpr float SCENE_LENGTHS[Scene::SceneCount] = {0.0f, 0.0f, 0.0f, 5.0f, 0.0f};
+
+	Scene m_scene;
+	float m_sceneProgress;
+	SmokeSimulation m_smokeSim;
 
 	// create command stuff
 	HRESULT CreateCommandStuff(
@@ -134,7 +175,8 @@ class Demo3
 
 	// map a resource
 	template <typename T>
-	std::span<T> MapResource(ComPtr<ID3D12Resource> resource, size_t size, size_t subResource = 0, size_t readStart = 0, size_t readEnd = 0)
+	std::span<T> MapResource(
+		ComPtr<ID3D12Resource> resource, size_t size, size_t subResource = 0, size_t readStart = 0, size_t readEnd = 0)
 	{
 		auto readRange = CD3DX12_RANGE(readStart, readEnd);
 		void* ptr = nullptr;

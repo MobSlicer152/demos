@@ -115,7 +115,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86;$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>liblzma.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -156,7 +156,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86;$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>liblzma.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -194,9 +194,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform);$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>liblzma.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -229,16 +230,22 @@
       <Optimization>MinSpace</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform);$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>liblzma.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <FixedBaseAddress>
+      </FixedBaseAddress>
+      <MapFileName>
+      </MapFileName>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
     <PostBuildEvent>
       <Command>del "$(TargetDir)\$(TargetName)_packed.exe" &amp; $(SolutionDir)tools\upx.exe -9 -o "$(TargetDir)\$(TargetName)_packed.exe" "$(TargetPath)"</Command>

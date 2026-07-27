@@ -74,3 +74,18 @@ float FBM(const Vec2& p, uint32_t period, uint32_t octave)
 	}
 	return v;
 }
+
+uint64_t FNV(std::span<const byte> data)
+{
+	constexpr uint64_t OFFSET_BASIS = 0xcbf29ce484222325;
+	constexpr uint64_t PRIME = 0x00000100000001B3;
+
+	uint64_t hash = OFFSET_BASIS;
+	for (size_t i = 0; i < data.size(); i++)
+	{
+		hash ^= data[i];
+		hash *= PRIME;
+	}
+
+	return hash;
+}

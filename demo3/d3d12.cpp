@@ -22,13 +22,13 @@ void Demo3::InitD3D12()
 	// get adapter info
 	m_adapter->GetDesc3(&m_adapterDesc);
 
-	printf("got adapter %ls [%04x:%04x]\n", m_adapterDesc.Description, m_adapterDesc.VendorId, m_adapterDesc.DeviceId);
+	Message("got adapter %ls [%04x:%04x]\n", m_adapterDesc.Description, m_adapterDesc.VendorId, m_adapterDesc.DeviceId);
 
 #ifdef _DEBUG
 	ComPtr<ID3D12Debug> debug;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug))))
 	{
-		printf("enabling debug layer\n");
+		Message("enabling debug layer\n");
 		debug->EnableDebugLayer();
 		ComPtr<ID3D12Debug6> debug6;
 		if (SUCCEEDED(debug.As(&debug6)))
@@ -109,7 +109,7 @@ void Demo3::LoadAssets()
 	// root signature
 	// aspect, time, etc
 	CD3DX12_ROOT_PARAMETER constants = {};
-	constants.InitAsConstants(3, 0);
+	constants.InitAsConstants(ArraySize(m_rootParams), 0);
 	// particle buffer
 	CD3DX12_DESCRIPTOR_RANGE descriptorRange;
 	descriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
@@ -237,14 +237,14 @@ HRESULT Demo3::CreateCommandStuff(
 	auto result = m_device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(queue));
 	if (FAILED(result))
 	{
-		printf("failed to create command queue: HRESULT 0x%08X\n", result);
+		Message("failed to create command queue: HRESULT 0x%08X\n", result);
 		return result;
 	}
 
 	result = m_device->CreateCommandAllocator(type, IID_PPV_ARGS(allocator));
 	if (FAILED(result))
 	{
-		printf("failed to create command allocator: HRESULT 0x%08X\n", result);
+		Message("failed to create command allocator: HRESULT 0x%08X\n", result);
 		return result;
 	}
 
@@ -341,7 +341,7 @@ void Demo3::UploadData(std::span<byte> src, ComPtr<ID3D12Resource> dest, uint64_
 	// check if it fits in the resource
 	if (src.size() > dest->GetDesc().Width)
 	{
-		printf("can't write %zu byte(s) to %zu-byte resource\n", src.size(), dest->GetDesc().Width);
+		Message("can't write %zu byte(s) to %zu-byte resource\n", src.size(), dest->GetDesc().Width);
 		return;
 	}
 
@@ -349,7 +349,7 @@ void Demo3::UploadData(std::span<byte> src, ComPtr<ID3D12Resource> dest, uint64_
 	size_t newOffset = m_transferBufferOffset + src.size();
 	if (newOffset > TRANSFER_BUFFER_SIZE)
 	{
-		printf(
+		Message(
 			"tried to write %zu bytes (%zu byte(s) past the limit) to transfer buffer, go increase its size",
 			newOffset,
 			newOffset - TRANSFER_BUFFER_SIZE);

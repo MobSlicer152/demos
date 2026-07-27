@@ -1,7 +1,5 @@
 #include "../demolib/demolib.h"
 
-NO_FILE_TABLE
-
 struct Building
 {
 	byte color;

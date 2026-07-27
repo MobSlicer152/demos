@@ -10,6 +10,6 @@
 // add headers that you want to pre-compile here
 #include "demolib.h"
 #define LZMA_API_STATIC
-#include "lzma.h"
+#include "zstd.h"
 
 #endif //PCH_H

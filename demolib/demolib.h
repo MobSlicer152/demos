@@ -2,15 +2,7 @@
 
 #define _NO_CRT_STDIO_INLINE
 
-#include <algorithm>
-#include <concepts>
-#include <cstdio>
-#include <format>
-#include <mutex>
 #include <span>
-#include <string>
-#include <string_view>
-#include <unordered_map>
 
 #include "camera.h"
 #include "mathfun.h"
@@ -29,7 +21,7 @@ extern int g_framesSinceAverage;
 extern uint64_t g_lastAverage;
 extern float g_averageFps;
 
-#define FRAMES_PER_AVERAGE 10
+#define TIME_PER_FPS_AVERAGE 100
 #define DEFAULT_TARGET_FPS 1000
 #define FRAMEBUFFER_WIDTH  640
 #define FRAMEBUFFER_HEIGHT 480
@@ -99,6 +91,9 @@ static constexpr uint16_t Interleave(byte a, byte b)
 
 // generate a uniform random number between min and max
 extern float UniformRandom(float min = 0.0f, float max = 1.0f);
+
+// FNV-1a hash
+extern uint64_t FNV(std::span<const byte> data);
 
 // perlin noise
 extern float Perlin(const Vec2& p, uint32_t period);
@@ -245,6 +240,13 @@ extern void DrawModel(
 // display an error messagebox and exit the process
 extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, ...);
 extern DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list args);
+
+// print a message
+extern void Message(const char* msg, ...);
+extern void Message(const char* msg, va_list args);
+
+// prepares space for files to be decompressed
+extern void InitFileTable();
 
 // get a file
 extern std::span<const byte> GetFile(const char* name);

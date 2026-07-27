@@ -140,6 +140,18 @@ DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list args)
 	ExitProcess(code);
 }
 
+void Message(const char* msg, va_list args)
+{
+	char buf[512] = {};
+	va_list args2;
+	va_copy(args2, args);
+	_vsnprintf_s(buf, ArraySize(buf), msg, args);
+	va_end(args2);
+
+	puts(buf);
+	OutputDebugStringA(buf);
+}
+
 static void InitFramebuffer()
 {
 	auto dc = GetDC(g_wnd);
@@ -222,27 +234,26 @@ static void WindowLoop()
 		g_elapsed += g_delta;
 		g_lastTime = g_nowTime;
 
-		if (g_paused)
+		auto timeSinceAverage = g_nowTime - g_lastAverage;
+		g_framesSinceAverage++;
+		if (timeSinceAverage > TIME_PER_FPS_AVERAGE)
 		{
-			SetWindowTextA(g_wnd, "Demo - PAUSED");
-		}
-		else
-		{
-			g_framesSinceAverage++;
-			if (g_framesSinceAverage > FRAMES_PER_AVERAGE)
-			{
-				float fpms = (float)g_framesSinceAverage / (g_nowTime - g_lastAverage);
-				g_averageFps = fpms * 1000.0;
-				SetWindowTextA(g_wnd, std::format("Demo - {:.2f} FPS / {:.1f} ms", g_averageFps, 1.0 / fpms).c_str());
-				g_lastAverage = g_nowTime;
-				g_framesSinceAverage = 0;
-			}
+			float fpms = (float)g_framesSinceAverage / timeSinceAverage;
+			g_averageFps = fpms * 1000.0;
+			char title[128] = {};
+			_snprintf_s(
+				title,
+				ArraySize(title) - 1,
+				"Demo - %.02f FPS / %.01f ms%s",
+				g_averageFps,
+				1.0 / fpms,
+				g_paused ? " - PAUSED" : "");
+			SetWindowTextA(g_wnd, title);
+			g_lastAverage = g_nowTime;
+			g_framesSinceAverage = 0;
 		}
 	}
 }
-
-// prepares space for files to be decompressed
-extern void InitFileTable();
 
 // calculates similar colors for dithering
 extern void InitColorTable();
@@ -260,7 +271,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 #endif
 	//_putenv("OMP_WAIT_POLICY=passive");
 
-	InitFileTable();
 	InitWindow();
 	InitNoise();
 	InitDemoPalette();

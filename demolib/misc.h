@@ -64,3 +64,9 @@ template <typename T, typename S, S N> constexpr S ArraySize(const T (&arr)[N])
 {
 	return N;
 }
+
+// Get the size of an array
+template <typename T, typename S, S N> constexpr S ArraySize(const std::array<T, N>& arr)
+{
+	return N;
+}

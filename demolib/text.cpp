@@ -21,11 +21,20 @@ void DrawString(int32_t x, int32_t y, const Vec4& color, float size, const char*
 	char buf[512] = {};
 	va_list args;
 	va_start(args, s);
-	vsnprintf(buf, ArraySize(buf), s, args);
+	_vsnprintf_s(buf, ArraySize(buf), s, args);
+	buf[ArraySize(buf) - 1] = 0;
 	va_end(args);
 
 	for (auto i = 0; i < strlen(buf); i++)
 	{
 		DrawChar(x + (i * 8 * size), y, buf[i], color, size);
 	}
+}
+
+void Message(const char* msg, ...)
+{
+	va_list args;
+	va_start(args, msg);
+	Message(msg, args);
+	va_end(args);
 }

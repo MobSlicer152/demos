@@ -1,6 +1,6 @@
-import lzma
 import os
 import struct
+import zstd
 
 from os import path
 from sys import argv, stderr
@@ -33,7 +33,7 @@ def main():
             data.extend(file_data)
 
     print(f"// compressing {len(data)} byte(s) from {len(entries)} entries")
-    compressed = lzma.compress(data, lzma.FORMAT_XZ)
+    compressed = zstd.compress(bytes(data), 22)
 
     data = bytearray(struct.pack("<III", len(data), len(compressed), len(entries))) # totalSize and entryCount
     for entry in entries:
