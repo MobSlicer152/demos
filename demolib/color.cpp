@@ -60,6 +60,13 @@ byte FindNearestColor(const Vec4& color)
 	return s_colorTable[COLORTAB_INDEX(color.r * 255, color.g * 255, color.b * 255)];
 }
 
+Vec4 QuantizeColor(const Vec4& color)
+{
+	byte r, g, b;
+	GetColor(FindNearestColor(color), r, g, b);
+	return Vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+}
+
 Vec4 BlendColor(const Vec4& fg, const Vec4& bg)
 {
 	Vec4 r;

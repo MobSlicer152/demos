@@ -104,6 +104,7 @@ extern void SetColor(byte index, byte r, byte g, byte b);
 extern void GetColor(byte index, byte& r, byte& g, byte& b);
 extern byte FindNearestColor(byte r, byte g, byte b);
 extern byte FindNearestColor(const Vec4& color);
+extern Vec4 QuantizeColor(const Vec4& color);
 extern Vec4 BlendColor(const Vec4& fg, const Vec4& bg);
 
 // dither a color

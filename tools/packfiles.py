@@ -33,7 +33,7 @@ def main():
             data.extend(file_data)
 
     print(f"// compressing {len(data)} byte(s) from {len(entries)} entries")
-    compressed = zstd.compress(bytes(data), 22)
+    compressed = zstd.compress(bytes(data), 9)
 
     data = bytearray(struct.pack("<III", len(data), len(compressed), len(entries))) # totalSize and entryCount
     for entry in entries:

@@ -115,7 +115,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86;$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;winmm.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -156,7 +156,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\x86;$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;winmm.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -194,7 +194,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform);$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;winmm.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrtd.lib;ucrtd.lib;vcruntimed.lib;libvcruntimed.lib;msvcprtd.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <GenerateMapFile>true</GenerateMapFile>
@@ -237,7 +237,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalLibraryDirectories>$(SolutionDir)libs\$(Platform);$(SolutionDir)libs\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
+      <AdditionalDependencies>libzstd_static.lib;d3d12.lib;dxgi.lib;ntdll.lib;winmm.lib;onecore.lib;legacy_stdio_wide_specifiers.lib;legacy_stdio_definitions.lib;msvcrt.lib;ucrt.lib;vcruntime.lib;libvcruntime.lib;msvcprt.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -266,6 +266,7 @@
     <ClCompile Include="$(IntDir)demo.pak.cpp" />
     <ClCompile Include="d3d12.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="smoke.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\demolib\demolib.vcxproj">
@@ -275,41 +276,31 @@
   <ItemGroup>
     <CustomBuild Include="prepare_assets.bat">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)prepare_assets.bat $(IntDir)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)demo.pak.cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)prepare_assets.bat $(IntDir)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)demo.pak.cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)prepare_assets.bat $(IntDir)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)demo.pak.cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)prepare_assets.bat $(IntDir)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)demo.pak.cpp</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)*.hlsl;$(ProjectDir)shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)*.hlsl;$(ProjectDir)shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)*.hlsl;$(ProjectDir)shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)*.hlsl;$(ProjectDir)shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
+      <Command>$(ProjectDir)prepare_assets.bat $(IntDir)</Command>
+      <Message />
+      <Outputs>$(IntDir)demo.pak.cpp</Outputs>
+      <AdditionalInputs>$(ProjectDir)assets\*.hlsl;$(ProjectDir)assets\shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)prepare_assets_debug.bat $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)prepare_assets_debug.bat $(IntDir)</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders.hlsl">
+    <None Include="assets\shaders.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo3.h" />
+    <ClInclude Include="smoke.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\noise.hlsl">
+    <None Include="assets\shaders\noise.hlsl">
       <FileType>Document</FileType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="prepare_assets_debug.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

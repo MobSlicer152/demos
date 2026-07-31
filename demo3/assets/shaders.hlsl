@@ -30,8 +30,10 @@ enum class Scene
 
 Scene scene;
 float aspect;
-float time;
-float speed;
+float elapsed;
+float progress;
+float2 ellipsePos;
+float2 ellipseSize;
 float brightness;
 float fountainBrightness;
 float fountainSize;
@@ -39,12 +41,15 @@ int smokeLayers;
 
 struct Particle
 {
-    float2 position;
+    float2 pos;
     float size;
     int layer;
+    float alpha;
 };
 
 StructuredBuffer<Particle> particles : register(t1);
+Texture2DArray<float4> textures : register(t2);
+SamplerState texSampler : register(s2);
 
 float SmoothMin(float d1, float d2, float k)
 {
@@ -68,7 +73,7 @@ float SDF(float2 ray, float2 aspect, int layer)
     for (int i = 0; i < particleCount; i++)
     {
         if (particles[i].layer == layer) {
-            float2 pos = particles[i].position * aspect;
+            float2 pos = particles[i].pos * aspect;
             float size = particles[i].size;
             s = SmoothMin(s, Circle(ray, pos, size), k);
         }
@@ -88,7 +93,7 @@ bool Smoke(out float4 color, float2 ray, float2 aspect)
             color = float4(0.0, 0.0, 0.0, 1.0);
             if (inv > 1.0)
             {
-                color = float4(1.0, 1.0, 1.0, 1.0);
+                 color = float4(1.0, 1.0, 1.0, 1.0);
             }
             
             return true;
@@ -96,6 +101,17 @@ bool Smoke(out float4 color, float2 ray, float2 aspect)
     }
 
     return false;
+}
+
+bool Ellipse(float2 ray)
+{
+    float2 dist = ray - ellipsePos;
+    float dx = dist.x;
+    float dy = dist.y;
+    float rx = ellipseSize.x;
+    float ry = ellipseSize.y;
+
+    return (ry > 0 && rx > 0) && ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) < 1);
 }
 
 bool Parabola(out float4 color, float2 ray, float scale, float a, float border, float2 vertex, float4 inside, float4 edge)
@@ -119,6 +135,43 @@ bool Parabola(out float4 color, float2 ray, float scale, float a, float border, 
     return false;
 }
 
+float4 Stars(float2 ray)
+{
+    int starCount = 0;
+    float scaleFactor = 1.0;
+    if (scene == Scene::FountainStart)
+    {
+        starCount = 1;
+        scaleFactor = 0.5;
+    }
+    else if (scene == Scene::FountainGrow)
+    {
+        starCount = -exp(progress - 3) + 8;
+        scaleFactor = elapsed;
+    }
+    else
+    {
+        return 0.0;
+    }
+
+    float4 color = 0.0;
+    for (int i = 0; i < starCount; i++)
+    {
+        float scaledI = starCount > 1 ? (float)i / starCount : 0.1;
+        float factor = (scaledI) * (fmod(scaleFactor, scaledI) + 0.5) * 0.5;
+        float opacity = factor;
+        float2 scale = float2(4.0, 0.5) * factor;
+        float2 center = float2(0.0, 0.5 + scale.y);
+        if (abs(ray.x - center.x) < scale.x && abs(ray.y - center.y) < scale.y)
+        {
+            float2 uv = ((ray - center) / scale * 0.5 + 0.5);
+            color += textures.Sample(texSampler, float3(uv, 0.0)) * opacity;
+        }
+    }
+
+    return color;
+}
+
 float4 PSMain(PSInput input) : SV_TARGET
 {
     float2 aspectScale = float2(aspect, 1.0);
@@ -129,6 +182,14 @@ float4 PSMain(PSInput input) : SV_TARGET
 
     switch (scene)
     {
+    case Scene::FountainStart:
+    {
+        if (Ellipse(ray))
+        {
+            return float4(1.0, 1.0, 1.0, 1.0);
+        }
+        break;
+    }
     case Scene::FountainGrow:
     {
         float4 fountainInner = float4(fountainBrightness, fountainBrightness, fountainBrightness, 1.0);
@@ -147,6 +208,19 @@ float4 PSMain(PSInput input) : SV_TARGET
         break;
     }
     }
-    
-    return fBM((ray - float2(time * speed, 0)), 8, 2, 0.75) + clamp(brightness - 0.2, 0, 1);
+
+    float4 stars = Stars(ray);
+
+    float noise = fBM((ray + float2(0, elapsed)), 16, 2, 0.75);
+    if (brightness > 0.0f)
+    {
+        if (noise > 0.01f)
+        {
+            noise += brightness;
+        }
+        noise += 0.2 * brightness;
+        noise = clamp(noise, 0, 0.9);
+    }
+
+    return stars + noise;
 }

@@ -30,13 +30,16 @@
     <ClCompile Include="d3d12.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="smoke.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders.hlsl">
+    <None Include="assets\shaders\noise.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="shaders\noise.hlsl">
+    <None Include="assets\shaders.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
@@ -44,8 +47,14 @@
     <ClInclude Include="demo3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="smoke.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="prepare_assets.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="prepare_assets_debug.bat" />
   </ItemGroup>
 </Project>

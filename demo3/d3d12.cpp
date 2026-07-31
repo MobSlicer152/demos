@@ -88,7 +88,7 @@ void Demo3::InitD3D12()
 	CHECK_HRESULT(CreateDescriptorHeap(
 		&m_shaderHeap,
 		m_shaderDescriptorSize,
-		1,
+		2,
 		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
 		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
 
@@ -110,14 +110,31 @@ void Demo3::LoadAssets()
 	// aspect, time, etc
 	CD3DX12_ROOT_PARAMETER constants = {};
 	constants.InitAsConstants(ArraySize(m_rootParams), 0);
-	// particle buffer
-	CD3DX12_DESCRIPTOR_RANGE descriptorRange;
-	descriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
+
+	// particle buffer and generated textures
+	CD3DX12_DESCRIPTOR_RANGE srvDescriptorRange;
+	srvDescriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1);
+
 	CD3DX12_ROOT_PARAMETER descriptorTable = {};
-	descriptorTable.InitAsDescriptorTable(1, &descriptorRange);
+	std::array<D3D12_DESCRIPTOR_RANGE, 1> descriptorRanges = {srvDescriptorRange};
+	descriptorTable.InitAsDescriptorTable(descriptorRanges.size(), descriptorRanges.data());
+
 	D3D12_ROOT_PARAMETER rootParams[] = {constants, descriptorTable};
+
+	D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D12_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.MinLOD = 0.0f;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	samplerDesc.ShaderRegister = 2;
+	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
 	auto rootSignatureDesc = CD3DX12_ROOT_SIGNATURE_DESC(
-		ArraySize(rootParams), rootParams, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		ArraySize(rootParams), rootParams, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
@@ -162,14 +179,24 @@ void Demo3::LoadAssets()
 
 	// particle buffer
 	auto particleBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(MAX_PARTICLES * sizeof(Particle));
-	CHECK_HRESULT(CreateResource(
-		&m_particleBuffer, particleBufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD));
+	CHECK_HRESULT(
+		CreateResource(&m_particleBuffer, particleBufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD));
 	m_particleBufferView = MapResource<Particle>(m_particleBuffer, MAX_PARTICLES);
+	m_particleBufferHandle.InitOffsetted(m_shaderHeap->GetCPUDescriptorHandleForHeapStart(), 0);
+
+	// generated textures
+	auto generatedTexturesDesc =
+		CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, TEXTURE_ARRAY_WIDTH, TEXTURE_ARRAY_HEIGHT, TEXTURE_ARRAY_SIZE, 1);
+	CHECK_HRESULT(CreateResource(&m_generatedTextures, generatedTexturesDesc, D3D12_RESOURCE_STATE_COPY_DEST));
+	auto generatedTexturesView = CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2DArray(generatedTexturesDesc.Format, generatedTexturesDesc.DepthOrArraySize);
+	m_generatedTexturesHandle.InitOffsetted(m_particleBufferHandle, 1, m_shaderDescriptorSize);
+	m_device->CreateShaderResourceView(m_generatedTextures.Get(), &generatedTexturesView, m_generatedTexturesHandle);
+
+	GenerateAssets();
 
 	// sync stuff
 	CHECK_HRESULT(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 	CHECK_HRESULT((m_fenceEvent = CreateEventA(nullptr, false, false, nullptr)) ? S_OK : HRESULT_FROM_WIN32(GetLastError()));
-
 	WaitForPreviousFrame();
 }
 
@@ -314,6 +341,7 @@ void Demo3::BeginTransfers()
 
 void Demo3::SubmitTransfers(bool wait /*= true*/)
 {
+	m_transferCommandList->Close();
 	m_transferQueue->ExecuteCommandLists(1, (ID3D12CommandList**)m_transferCommandList.GetAddressOf());
 	if (wait)
 	{
@@ -338,13 +366,6 @@ void Demo3::WaitForTransfers()
 
 void Demo3::UploadData(std::span<byte> src, ComPtr<ID3D12Resource> dest, uint64_t destOffset /*= 0*/)
 {
-	// check if it fits in the resource
-	if (src.size() > dest->GetDesc().Width)
-	{
-		Message("can't write %zu byte(s) to %zu-byte resource\n", src.size(), dest->GetDesc().Width);
-		return;
-	}
-
 	// check if it fits in the transfer buffer
 	size_t newOffset = m_transferBufferOffset + src.size();
 	if (newOffset > TRANSFER_BUFFER_SIZE)
@@ -358,8 +379,29 @@ void Demo3::UploadData(std::span<byte> src, ComPtr<ID3D12Resource> dest, uint64_
 
 	// copy to the cpu mapped address
 	std::copy(src.begin(), src.end(), m_transferBufferView.begin() + m_transferBufferOffset);
+
 	// copy the gpu buffer to the target resource
-	m_transferCommandList->CopyBufferRegion(dest.Get(), destOffset, m_transferBuffer.Get(), m_transferBufferOffset, src.size());
+	auto desc = dest->GetDesc();
+	if (desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+	{
+		m_transferCommandList->CopyBufferRegion(
+			dest.Get(), destOffset, m_transferBuffer.Get(), m_transferBufferOffset, src.size());
+	}
+	else
+	{
+		// get data regions to copy
+		auto subresourceCount = desc.MipLevels * desc.DepthOrArraySize;
+		auto footprints = std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>(subresourceCount);
+		auto sizes = std::vector<uint64_t>(subresourceCount);
+		m_device->GetCopyableFootprints(
+			&desc, 0, subresourceCount, m_transferBufferOffset, footprints.data(), nullptr, nullptr, sizes.data());
+		for (uint32_t i = 0; i < subresourceCount; i++)
+		{
+			auto srcLocation = CD3DX12_TEXTURE_COPY_LOCATION(m_transferBuffer.Get(), footprints[i]);
+			auto destLocation = CD3DX12_TEXTURE_COPY_LOCATION(dest.Get(), i);
+			m_transferCommandList->CopyTextureRegion(&destLocation, 0, 0, 0, &srcLocation, nullptr);
+		}
+	}
 
 	// set the new offset
 	m_transferBufferOffset = newOffset;

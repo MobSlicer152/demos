@@ -9,6 +9,7 @@
 #include <array>
 #include <cstdio>
 #include <dxgi1_6.h>
+#include <mmsystem.h>
 #include <span>
 #include <string_view>
 #include <windows.h>
@@ -37,9 +38,10 @@ struct Vertex
 
 struct Particle
 {
-	Vec2 position;
-	float radius;
+	Vec2 pos;
+	float size;
 	int layer;
+	float alpha;
 };
 
 class SmokeSimulation;
@@ -50,11 +52,17 @@ class Demo3
 	Demo3() = default;
 	~Demo3() = default;
 
+	// set up basic stuff
+	void Init();
+
 	// set up d3d12
 	void InitD3D12();
 
 	// load assets
 	void LoadAssets();
+
+	// generate stuff
+	void GenerateAssets();
 
 	// prepare to record draw commands
 	void PrepareFrame();
@@ -128,9 +136,10 @@ class Demo3
 			return *(RootParam*)&i;
 		}
 	};
-	std::array<RootParam, 8> m_rootParams;
+	std::array<RootParam, 12> m_rootParams;
 	ComPtr<ID3D12Resource> m_particleBuffer;
 	std::span<Particle> m_particleBufferView;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE m_particleBufferHandle;
 	std::vector<Particle> m_particles;
 	static constexpr size_t MAX_PARTICLES = 128;
 
@@ -144,11 +153,26 @@ class Demo3
 		SceneCount
 	};
 
-	static constexpr float SCENE_LENGTHS[Scene::SceneCount] = {0.0f, 0.0f, 0.0f, 5.0f, 0.0f};
+	static constexpr std::array<float, Scene::SceneCount> SCENE_SPEEDS = {0.0f, 0.0f, 20.0f, 0.75f, 0.0f};
+	static constexpr std::array<float, Scene::SceneCount> SCENE_LENGTHS = {0.0f, 0.0f, 0.59f, 6.5f, 0.0f};
+	static constexpr std::array<const char*, Scene::SceneCount> SCENE_SOUND_NAMES = {
+		nullptr, "stab.wav", "start.wav", "grow.wav", nullptr
+	};
+
+	HWAVEOUT m_waveOut;
+	bool m_audioPaused = false;
 
 	Scene m_scene;
 	float m_sceneProgress;
-	SmokeSimulation m_smokeSim;
+	std::array<std::span<const byte>, Scene::SceneCount> m_sceneSounds;
+	// SmokeSimulation m_smokeSim;
+
+	// generated textures get shoved in this
+	ComPtr<ID3D12Resource> m_generatedTextures;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE m_generatedTexturesHandle;
+	static constexpr uint32_t TEXTURE_ARRAY_WIDTH = 64;
+	static constexpr uint32_t TEXTURE_ARRAY_HEIGHT = 64;
+	static constexpr uint32_t TEXTURE_ARRAY_SIZE = 2;
 
 	// create command stuff
 	HRESULT CreateCommandStuff(

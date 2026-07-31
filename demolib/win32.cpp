@@ -60,7 +60,10 @@ static LRESULT WINAPI WindowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lPara
 			g_running = false;
 			break;
 		case VK_SPACE:
+			// pausing is for debugging only
+#ifdef _DEBUG
 			g_paused = !g_paused;
+#endif
 			break;
 		}
 	}
@@ -136,6 +139,8 @@ DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list args)
 	char buf[512] = {}; // avoid allocation since it could be the cause of the error
 	_vsnprintf_s(buf, ArraySize(buf), msg, args);
 	buf[ArraySize(buf) - 1] = 0;
+	OutputDebugStringA(buf);
+	puts(buf);
 	MessageBoxA(g_wnd, buf, "Fatal error", MB_OK | MB_ICONERROR);
 	ExitProcess(code);
 }
@@ -274,9 +279,9 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prevInst, LPSTR cmdline, int show)
 	InitWindow();
 	InitNoise();
 	InitDemoPalette();
+	InitColorTable();
 	if (g_useFramebuffer)
 	{
-		InitColorTable();
 		InitFramebuffer();
 	}
 	InitDemo();
