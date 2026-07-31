@@ -59,10 +59,10 @@ class Demo3
 	void InitD3D12();
 
 	// load assets
-	void LoadAssets();
+	void CreateResources();
 
 	// generate stuff
-	void GenerateAssets();
+	void SetupAssets();
 
 	// prepare to record draw commands
 	void PrepareFrame();
@@ -97,6 +97,8 @@ class Demo3
 	ComPtr<ID3D12PipelineState> m_pipelineState;
 	ComPtr<ID3D12GraphicsCommandList> m_commandList;
 
+	static constexpr int SHADER_RESOURCE_COUNT = 3;
+
 	// transfer stuff
 	ComPtr<ID3D12CommandQueue> m_transferQueue;
 	ComPtr<ID3D12CommandAllocator> m_transferAllocator;
@@ -108,7 +110,7 @@ class Demo3
 	ComPtr<ID3D12Fence> m_transferFence;
 	uint64_t m_transferFenceValue = 0;
 
-	static constexpr size_t TRANSFER_BUFFER_SIZE = 64 * 1024;
+	static constexpr size_t TRANSFER_BUFFER_SIZE = 1024 * 1024;
 
 	// swapchain and render targets
 	ComPtr<IDXGISwapChain4> m_swapChain;
@@ -136,12 +138,12 @@ class Demo3
 			return *(RootParam*)&i;
 		}
 	};
-	std::array<RootParam, 12> m_rootParams;
+	std::array<RootParam, 14> m_rootParams;
 	ComPtr<ID3D12Resource> m_particleBuffer;
 	std::span<Particle> m_particleBufferView;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE m_particleBufferHandle;
 	std::vector<Particle> m_particles;
-	static constexpr size_t MAX_PARTICLES = 128;
+	static constexpr size_t MAX_PARTICLES = 2048;
 
 	enum Scene : int
 	{
@@ -150,11 +152,18 @@ class Demo3
 		FountainStart,
 		FountainGrow,
 		FountainSmoke,
+		Ending,
 		SceneCount
 	};
 
-	static constexpr std::array<float, Scene::SceneCount> SCENE_SPEEDS = {0.0f, 0.0f, 20.0f, 0.75f, 0.0f};
-	static constexpr std::array<float, Scene::SceneCount> SCENE_LENGTHS = {0.0f, 0.0f, 0.0f, 0.0f, 10.0f}; // {0.0f, 0.0f, 0.59f, 6.5f, 0.0f};
+	enum Pose : int
+	{
+		Jump,
+		Stab
+	};
+
+	static constexpr std::array<float, Scene::SceneCount> SCENE_SPEEDS = {0.0f, 8.0f, 20.0f, 0.75f, 1.0f, 1.0f};
+	static constexpr std::array<float, Scene::SceneCount> SCENE_LENGTHS = {0.0f, 1.61f, 0.59f, 6.5f, 5.0f, 5.0f};
 	static constexpr std::array<const char*, Scene::SceneCount> SCENE_SOUND_NAMES = {
 		nullptr, "stab.wav", "start.wav", "grow.wav", nullptr};
 
@@ -164,14 +173,22 @@ class Demo3
 	Scene m_scene;
 	float m_sceneProgress;
 	std::array<std::span<const byte>, Scene::SceneCount> m_sceneSounds;
-	SmokeSimulation m_smokeSim = SmokeSimulation(11, 11, 2.0f / 11.0f);
+	Vec2 m_smokeSimToScreen;
+	SmokeSimulation m_smokeSim = SmokeSimulation(8, 64, 1.0f / 32);
 
 	// generated textures get shoved in this
 	ComPtr<ID3D12Resource> m_generatedTextures;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE m_generatedTexturesHandle;
-	static constexpr uint32_t TEXTURE_ARRAY_WIDTH = 64;
-	static constexpr uint32_t TEXTURE_ARRAY_HEIGHT = 64;
-	static constexpr uint32_t TEXTURE_ARRAY_SIZE = 2;
+	static constexpr uint32_t GENERATED_TEXTURE_WIDTH = 64;
+	static constexpr uint32_t GENERATED_TEXTURE_HEIGHT = 64;
+	static constexpr uint32_t GENERATED_TEXTURE_COUNT = 1;
+
+	// character
+	ComPtr<ID3D12Resource> m_characterTextures;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE m_characterTexturesHandle;
+	static constexpr uint32_t CHARACTER_TEXTURE_WIDTH = 256;
+	static constexpr uint32_t CHARACTER_TEXTURE_HEIGHT = 256;
+	static constexpr uint32_t CHARACTER_TEXTURE_COUNT = 2;
 
 	// create command stuff
 	HRESULT CreateCommandStuff(
@@ -223,7 +240,7 @@ class Demo3
 	void WaitForTransfers();
 
 	// upload data to a buffer
-	void UploadData(std::span<byte> src, ComPtr<ID3D12Resource> dest, uint64_t destOffset = 0);
+	void UploadData(std::span<const byte> src, ComPtr<ID3D12Resource> dest, uint64_t destOffset = 0);
 
 	// create a vertex buffer
 	ComPtr<ID3D12Resource> CreateVertexBuffer(std::span<Vertex> vertices, bool grouped = false);

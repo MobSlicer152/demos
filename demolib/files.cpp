@@ -77,7 +77,7 @@ void InitFileTable()
 
 std::span<const byte> GetFile(const char* name)
 {
-	auto hash = FNV(std::span<const byte>((const byte*)name, strlen(name)));
+	auto hash = FNV(std::span<const byte>((const byte*)name, strnlen(name, 16)));
 	for (uint32_t i = 0; i < g_fileTable.entryCount; i++)
 	{
 		if (s_fileMap[i].hash == hash)

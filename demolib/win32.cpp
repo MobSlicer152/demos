@@ -141,7 +141,20 @@ DECLSPEC_NORETURN void ErrorMessage(int code, const char* msg, va_list args)
 	buf[ArraySize(buf) - 1] = 0;
 	OutputDebugStringA(buf);
 	puts(buf);
+#ifdef _DEBUG
+	auto result = MessageBoxA(g_wnd, buf, "Fatal error", MB_ABORTRETRYIGNORE | MB_ICONERROR);
+	switch (result)
+	{
+	case IDIGNORE:
+	case IDABORT:
+		break;
+	case IDRETRY:
+		__debugbreak();
+		break;
+	}
+#else
 	MessageBoxA(g_wnd, buf, "Fatal error", MB_OK | MB_ICONERROR);
+#endif
 	ExitProcess(code);
 }
 

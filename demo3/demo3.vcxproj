@@ -282,6 +282,10 @@
       <AdditionalInputs>$(ProjectDir)assets\*.hlsl;$(ProjectDir)assets\shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)prepare_assets_debug.bat $(IntDir)</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)prepare_assets_debug.bat $(IntDir)</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)assets\*.hlsl;$(ProjectDir)assets\*.wav;$(ProjectDir)assets\*.png;$(ProjectDir)assets\shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)assets\*.hlsl;$(ProjectDir)assets\*.wav;$(ProjectDir)assets\*.png;$(ProjectDir)assets\shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)assets\*.hlsl;$(ProjectDir)assets\*.wav;$(ProjectDir)assets\*.png;$(ProjectDir)assets\shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)assets\*.hlsl;$(ProjectDir)assets\*.wav;$(ProjectDir)assets\*.png;$(ProjectDir)assets\shaders\*.hlsl;$(SolutionDir)tools\packfiles.py;</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -293,6 +297,7 @@
   <ItemGroup>
     <ClInclude Include="demo3.h" />
     <ClInclude Include="smoke.h" />
+    <ClInclude Include="vector2d.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\noise.hlsl">

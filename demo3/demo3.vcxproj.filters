@@ -50,6 +50,9 @@
     <ClInclude Include="smoke.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="vector2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="prepare_assets.bat" />

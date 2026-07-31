@@ -88,7 +88,7 @@ void Demo3::InitD3D12()
 	CHECK_HRESULT(CreateDescriptorHeap(
 		&m_shaderHeap,
 		m_shaderDescriptorSize,
-		2,
+		SHADER_RESOURCE_COUNT,
 		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
 		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
 
@@ -104,7 +104,7 @@ void Demo3::InitD3D12()
 	// TODO: depth buffer
 }
 
-void Demo3::LoadAssets()
+void Demo3::CreateResources()
 {
 	// root signature
 	// aspect, time, etc
@@ -113,7 +113,7 @@ void Demo3::LoadAssets()
 
 	// particle buffer and generated textures
 	CD3DX12_DESCRIPTOR_RANGE srvDescriptorRange;
-	srvDescriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1);
+	srvDescriptorRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, SHADER_RESOURCE_COUNT, 1);
 
 	CD3DX12_ROOT_PARAMETER descriptorTable = {};
 	std::array<D3D12_DESCRIPTOR_RANGE, 1> descriptorRanges = {srvDescriptorRange};
@@ -185,14 +185,24 @@ void Demo3::LoadAssets()
 	m_particleBufferHandle.InitOffsetted(m_shaderHeap->GetCPUDescriptorHandleForHeapStart(), 0);
 
 	// generated textures
-	auto generatedTexturesDesc =
-		CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, TEXTURE_ARRAY_WIDTH, TEXTURE_ARRAY_HEIGHT, TEXTURE_ARRAY_SIZE, 1);
+	auto generatedTexturesDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		DXGI_FORMAT_R8G8B8A8_UNORM, GENERATED_TEXTURE_WIDTH, GENERATED_TEXTURE_HEIGHT, GENERATED_TEXTURE_COUNT, 1);
 	CHECK_HRESULT(CreateResource(&m_generatedTextures, generatedTexturesDesc, D3D12_RESOURCE_STATE_COPY_DEST));
-	auto generatedTexturesView = CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2DArray(generatedTexturesDesc.Format, generatedTexturesDesc.DepthOrArraySize);
+	auto generatedTexturesView =
+		CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2DArray(generatedTexturesDesc.Format, generatedTexturesDesc.DepthOrArraySize);
 	m_generatedTexturesHandle.InitOffsetted(m_particleBufferHandle, 1, m_shaderDescriptorSize);
 	m_device->CreateShaderResourceView(m_generatedTextures.Get(), &generatedTexturesView, m_generatedTexturesHandle);
 
-	GenerateAssets();
+	// character textures
+	auto characterTexturesDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		DXGI_FORMAT_R8G8B8A8_UNORM, CHARACTER_TEXTURE_WIDTH, CHARACTER_TEXTURE_HEIGHT, CHARACTER_TEXTURE_COUNT, 1);
+	CHECK_HRESULT(CreateResource(&m_characterTextures, characterTexturesDesc, D3D12_RESOURCE_STATE_COPY_DEST));
+	auto characterTexturesView =
+		CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2DArray(characterTexturesDesc.Format, characterTexturesDesc.DepthOrArraySize);
+	m_characterTexturesHandle.InitOffsetted(m_particleBufferHandle, 2, m_shaderDescriptorSize);
+	m_device->CreateShaderResourceView(m_characterTextures.Get(), &characterTexturesView, m_characterTexturesHandle);
+
+	SetupAssets();
 
 	// sync stuff
 	CHECK_HRESULT(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
@@ -364,8 +374,10 @@ void Demo3::WaitForTransfers()
 	m_transferBufferOffset = 0;
 }
 
-void Demo3::UploadData(std::span<byte> src, ComPtr<ID3D12Resource> dest, uint64_t destOffset /*= 0*/)
+void Demo3::UploadData(std::span<const byte> src, ComPtr<ID3D12Resource> dest, uint64_t destOffset /*= 0*/)
 {
+	if (src.empty()) {}
+
 	// check if it fits in the transfer buffer
 	size_t newOffset = m_transferBufferOffset + src.size();
 	if (newOffset > TRANSFER_BUFFER_SIZE)

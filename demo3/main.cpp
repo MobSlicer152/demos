@@ -9,7 +9,7 @@ void Demo3::Init()
 	waveOutSetVolume(m_waveOut, (vol << 16) | vol);
 }
 
-void Demo3::GenerateAssets()
+void Demo3::SetupAssets()
 {
 	// load sounds
 	for (size_t i = 0; i < m_sceneSounds.size(); i++)
@@ -21,29 +21,29 @@ void Demo3::GenerateAssets()
 		}
 	}
 
-	// generate textures
-	auto textureBuf = std::vector<uint32_t>(TEXTURE_ARRAY_WIDTH * TEXTURE_ARRAY_HEIGHT * TEXTURE_ARRAY_SIZE);
-	auto texArrayCoord = [](uint32_t x, uint32_t y, uint32_t z) {
-		return z * TEXTURE_ARRAY_WIDTH * TEXTURE_ARRAY_HEIGHT + y * TEXTURE_ARRAY_WIDTH + x;
-	};
-
-	auto rhombus = [](Vec2 p, Vec2 b) {
-		b.y = -b.y;
-		p = Vec2(abs(p.x), abs(p.y));
-		float h = std::clamp(b.Dot(p) + b.y * b.y / b.Dot(b), 0.0f, 1.0f);
-		p -= b * Vec2(h, h - 1.0f);
-		return std::copysign(p.Length(), p.x);
-	};
-
-	// replication of spr_kris_make_fountain_flash of dubious quality
-	float flashRadius = 0.35;
-	float thickness = 0.065;
-	uint32_t z = 0;
-	for (uint32_t y = 0; y < TEXTURE_ARRAY_HEIGHT; y++)
+	// initialize particles
+	m_particles.resize(MAX_PARTICLES);
+	m_smokeSimToScreen = Vec2(g_aspect, -1.0f);
+	for (auto& particle : m_particles)
 	{
-		for (uint32_t x = 0; x < TEXTURE_ARRAY_WIDTH; x++)
+		auto jitter = Vec2(UniformRandom(-1.0f), UniformRandom(-1.0f)) * 0.1;
+		particle.pos = m_smokeSim.CellCentre(4, 12) * m_smokeSimToScreen + jitter;
+	}
+
+	// generate textures
+	auto textureBuf = std::vector<uint32_t>(GENERATED_TEXTURE_WIDTH * GENERATED_TEXTURE_HEIGHT * GENERATED_TEXTURE_COUNT);
+	auto texArrayCoord = [](uint32_t x, uint32_t y, uint32_t z) {
+		return z * GENERATED_TEXTURE_WIDTH * GENERATED_TEXTURE_HEIGHT + y * GENERATED_TEXTURE_WIDTH + x;
+	};
+
+	float flashRadius = 0.35;
+	float thickness = 0.04;
+	uint32_t z = 0;
+	for (uint32_t y = 0; y < GENERATED_TEXTURE_HEIGHT; y++)
+	{
+		for (uint32_t x = 0; x < GENERATED_TEXTURE_WIDTH; x++)
 		{
-			auto ray = Vec2((float)x / TEXTURE_ARRAY_WIDTH, (float)y / TEXTURE_ARRAY_HEIGHT) * 2.0f - Vec2(1.0f);
+			auto ray = Vec2((float)x / GENERATED_TEXTURE_WIDTH, (float)y / GENERATED_TEXTURE_HEIGHT) * 2.0f - Vec2(1.0f);
 			bool circle = abs(ray.Length() - flashRadius) < thickness;
 			bool cross = abs(ray.x) < thickness * 0.25f || abs(ray.y) < thickness * 2.5f;
 			if (circle || cross)
@@ -53,13 +53,27 @@ void Demo3::GenerateAssets()
 		}
 	}
 
-	m_particles.resize(m_smokeSim.CellCountX * m_smokeSim.CellCountY);
+	// upload character textures
+	constexpr auto characterTextureSize = CHARACTER_TEXTURE_WIDTH * CHARACTER_TEXTURE_HEIGHT * sizeof(uint32_t);
+	auto characterBlob = std::vector<byte>(characterTextureSize * CHARACTER_TEXTURE_COUNT);
+	for (int i = 0; i < CHARACTER_TEXTURE_COUNT; i++)
+	{
+		char name[16] = {};
+		snprintf(name, ArraySize(name), "pose%d.img", i);
+		auto data = GetFile(name);
+		std::copy(data.begin(), data.end(), characterBlob.begin() + i * characterTextureSize);
+	}
 
 	BeginTransfers();
 	UploadData(std::span((byte*)textureBuf.data(), textureBuf.size() * sizeof(uint32_t)), m_generatedTextures);
-	auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-		m_generatedTextures.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	m_transferCommandList->ResourceBarrier(1, &barrier);
+	UploadData(characterBlob, m_characterTextures);
+
+	std::array<CD3DX12_RESOURCE_BARRIER, 2> barriers = {
+		CD3DX12_RESOURCE_BARRIER::Transition(
+			m_generatedTextures.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+		CD3DX12_RESOURCE_BARRIER::Transition(
+			m_characterTextures.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)};
+	m_transferCommandList->ResourceBarrier(barriers.size(), barriers.data());
 	SubmitTransfers();
 }
 
@@ -91,6 +105,13 @@ void Demo3::Update()
 
 	// set shader params
 	float progress = m_sceneProgress * SCENE_SPEEDS[m_scene];
+
+	Pose pose = Pose::Jump;
+	Vec2 characterPos = Vec2(0.0f, 0.2f + (m_scene == Scene::FountainStab ? -1 / (exp(progress - 4) + exp(-(progress - 4))) : 0.0f));
+	if (m_sceneProgress > 0.6f || m_scene > Scene::FountainStab)
+	{
+		pose = Pose::Stab;
+	}
 
 	float ellipseProgress = std::clamp(progress, 0.0f, 4.0f);
 	Vec2 ellipsePos = Vec2(0.0f, -ellipseProgress + 0.5f);
@@ -140,25 +161,29 @@ void Demo3::Update()
 		brightness = backgroundBrightness(brightnessProgress);
 		fountainBrightness = foregroundBrightness(brightnessProgress);
 	}
-	int32_t smokeLayers = 1;
 
 	if (m_scene == Scene::FountainSmoke)
 	{
-		auto pos = m_smokeSim.CellIndex(5, 7);
-		m_smokeSim.SmokeMap[pos] = 0.125f;
-		m_smokeSim.VelocitiesY[pos] = 4.0f;
+		m_smokeSim.SmokeMap(4, 12) = 0.8f;
+		m_smokeSim.VelocitiesY(4, 12) = 0.85f;
 
-		m_smokeSim.RunPressureSolver(1);
+		m_smokeSim.RunPressureSolver(10);
 		m_smokeSim.UpdateVelocities();
 
 		for (uint32_t x = 0; x < m_smokeSim.CellCountX; x++)
 		{
 			for (uint32_t y = 0; y < m_smokeSim.CellCountY; y++)
 			{
-				auto& particle = m_particles[y * m_smokeSim.CellCountY + x];
-				particle.pos = m_smokeSim.CellCentre(x, y);
-				auto i = m_smokeSim.CellIndex(x, y);
-				particle.size = m_smokeSim.SmokeMap[i] / 2.0f;
+				auto& particle = m_particles[y * m_smokeSim.CellCountX + x];
+				auto fac = (1.0f - (particle.pos.y * 0.5f + 0.5f)) * 0.5f;
+				particle.pos += Vec2(m_smokeSim.VelocitiesX(x, y) * fac / 2, m_smokeSim.VelocitiesY(x, y)) * m_smokeSim.TimeStep *
+								m_smokeSimToScreen;
+				particle.size = m_smokeSim.SmokeMap(x, y) * fac;
+				// if (particle.size > 0.6f)
+				//{
+				//	particle.size = 100.0f;
+				//	m_sceneProgress = FLT_MAX;
+				// }
 			}
 		}
 
@@ -178,7 +203,10 @@ void Demo3::Update()
 		RootParam::Float(brightness),
 		RootParam::Float(fountainBrightness),
 		RootParam::Float(fountainSize),
-		RootParam::Int(smokeLayers)};
+		RootParam::Int(pose),
+		RootParam::Float(characterPos.x),
+		RootParam::Float(characterPos.y),
+	};
 }
 
 void Demo3::Draw()
@@ -214,7 +242,7 @@ void InitDemo()
 	demo = std::make_shared<Demo3>();
 	demo->Init();
 	demo->InitD3D12();
-	demo->LoadAssets();
+	demo->CreateResources();
 }
 
 void DrawDemo()
