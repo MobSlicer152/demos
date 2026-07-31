@@ -4,8 +4,8 @@
 #include "../libs/utf8.h"
 #include "d3d12.h"
 #include "d3dx12.h"
+#include "smoke.h"
 #include <algorithm>
-#include <any>
 #include <array>
 #include <cstdio>
 #include <dxgi1_6.h>
@@ -154,10 +154,9 @@ class Demo3
 	};
 
 	static constexpr std::array<float, Scene::SceneCount> SCENE_SPEEDS = {0.0f, 0.0f, 20.0f, 0.75f, 0.0f};
-	static constexpr std::array<float, Scene::SceneCount> SCENE_LENGTHS = {0.0f, 0.0f, 0.59f, 6.5f, 0.0f};
+	static constexpr std::array<float, Scene::SceneCount> SCENE_LENGTHS = {0.0f, 0.0f, 0.0f, 0.0f, 10.0f}; // {0.0f, 0.0f, 0.59f, 6.5f, 0.0f};
 	static constexpr std::array<const char*, Scene::SceneCount> SCENE_SOUND_NAMES = {
-		nullptr, "stab.wav", "start.wav", "grow.wav", nullptr
-	};
+		nullptr, "stab.wav", "start.wav", "grow.wav", nullptr};
 
 	HWAVEOUT m_waveOut;
 	bool m_audioPaused = false;
@@ -165,7 +164,7 @@ class Demo3
 	Scene m_scene;
 	float m_sceneProgress;
 	std::array<std::span<const byte>, Scene::SceneCount> m_sceneSounds;
-	// SmokeSimulation m_smokeSim;
+	SmokeSimulation m_smokeSim = SmokeSimulation(11, 11, 2.0f / 11.0f);
 
 	// generated textures get shoved in this
 	ComPtr<ID3D12Resource> m_generatedTextures;

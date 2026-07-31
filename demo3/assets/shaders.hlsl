@@ -72,7 +72,7 @@ float SDF(float2 ray, float2 aspect, int layer)
     float s = 1e5;
     for (int i = 0; i < particleCount; i++)
     {
-        if (particles[i].layer == layer) {
+        if (particles[i].layer == layer && particles[i].size > 0.0) {
             float2 pos = particles[i].pos * aspect;
             float size = particles[i].size;
             s = SmoothMin(s, Circle(ray, pos, size), k);

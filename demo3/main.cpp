@@ -53,6 +53,8 @@ void Demo3::GenerateAssets()
 		}
 	}
 
+	m_particles.resize(m_smokeSim.CellCountX * m_smokeSim.CellCountY);
+
 	BeginTransfers();
 	UploadData(std::span((byte*)textureBuf.data(), textureBuf.size() * sizeof(uint32_t)), m_generatedTextures);
 	auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -138,7 +140,31 @@ void Demo3::Update()
 		brightness = backgroundBrightness(brightnessProgress);
 		fountainBrightness = foregroundBrightness(brightnessProgress);
 	}
-	int32_t smokeLayers = 4;
+	int32_t smokeLayers = 1;
+
+	if (m_scene == Scene::FountainSmoke)
+	{
+		auto pos = m_smokeSim.CellIndex(5, 7);
+		m_smokeSim.SmokeMap[pos] = 0.125f;
+		m_smokeSim.VelocitiesY[pos] = 4.0f;
+
+		m_smokeSim.RunPressureSolver(1);
+		m_smokeSim.UpdateVelocities();
+
+		for (uint32_t x = 0; x < m_smokeSim.CellCountX; x++)
+		{
+			for (uint32_t y = 0; y < m_smokeSim.CellCountY; y++)
+			{
+				auto& particle = m_particles[y * m_smokeSim.CellCountY + x];
+				particle.pos = m_smokeSim.CellCentre(x, y);
+				auto i = m_smokeSim.CellIndex(x, y);
+				particle.size = m_smokeSim.SmokeMap[i] / 2.0f;
+			}
+		}
+
+		m_smokeSim.AdvectDye();
+		m_smokeSim.AdvectVelocities();
+	}
 
 	m_rootParams = {
 		RootParam::Int(m_scene),
