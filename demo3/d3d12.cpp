@@ -202,6 +202,15 @@ void Demo3::CreateResources()
 	m_characterTexturesHandle.InitOffsetted(m_particleBufferHandle, 2, m_shaderDescriptorSize);
 	m_device->CreateShaderResourceView(m_characterTextures.Get(), &characterTexturesView, m_characterTexturesHandle);
 
+	// font textures
+	auto fontTexturesDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		DXGI_FORMAT_R8_UNORM, FONT_TEXTURE_WIDTH, FONT_TEXTURE_HEIGHT, 1, 1);
+	CHECK_HRESULT(CreateResource(&m_fontTexture, fontTexturesDesc, D3D12_RESOURCE_STATE_COPY_DEST));
+	auto fontTexturesView =
+		CD3DX12_SHADER_RESOURCE_VIEW_DESC::Tex2DArray(fontTexturesDesc.Format, fontTexturesDesc.DepthOrArraySize);
+	m_fontTextureHandle.InitOffsetted(m_particleBufferHandle, 3, m_shaderDescriptorSize);
+	m_device->CreateShaderResourceView(m_fontTexture.Get(), &fontTexturesView, m_fontTextureHandle);
+
 	SetupAssets();
 
 	// sync stuff

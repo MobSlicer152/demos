@@ -59,6 +59,7 @@ StructuredBuffer<Particle> particles : register(t1);
 SamplerState texSampler : register(s2);
 Texture2DArray<float4> textures : register(t2);
 Texture2DArray<float4> character : register(t3);
+Texture2D<float> font : register(t4);
 
 float SmoothMin(float d1, float d2, float k)
 {
@@ -195,11 +196,48 @@ bool Heart(out float4 color, float2 ray, float2 aspect)
     return false;
 }
 
+bool Star(out float4 color, float2 ray, int i, int starCount, float scaleFactor)
+{
+    float scaledI = starCount > 1 ? (float) i / starCount : 0.1;
+    float factor = (scaledI) * (fmod(scaleFactor, scaledI) + 0.5) * 0.5;
+    
+    float2 baseScale = scaleFactor;
+    float2 defaultPos = 0.0;
+    float opacity = factor;
+    if (scene == Scene::FountainStab)
+    {
+        defaultPos = float2(scaledI - 0.5, cos(scaledI * 10) * 0.2);
+        opacity = 1.0;
+        baseScale /= factor;
+    }
+    else if (scene == Scene::FountainStart || scene == Scene::FountainGrow)
+    {
+        baseScale = float2(4.0, 0.5);
+        defaultPos = float2(0.0, 0.5);
+    }
+    
+    float2 scale = baseScale * factor;
+    float2 center = defaultPos + float2(0.0, scale.y);
+    if (abs(ray.x - center.x) < scale.x && abs(ray.y - center.y) < scale.y)
+    {
+        float2 uv = ((ray - center) / scale * 0.5 + 0.5);
+        color = textures.Sample(texSampler, float3(uv, 0.0)) * opacity;
+        return true;
+    }
+    
+    return false;
+}
+
 float4 Stars(float2 ray)
 {
     int starCount = 0;
     float scaleFactor = 1.0;
-    if (scene == Scene::FountainStart)
+    if (scene == Scene::FountainStab)
+    {
+        starCount = floor(progress * 2);
+        scaleFactor = 0.025;
+    }
+    else if (scene == Scene::FountainStart)
     {
         starCount = 1;
         scaleFactor = 0.5;
@@ -217,15 +255,10 @@ float4 Stars(float2 ray)
     float4 color = 0.0;
     for (int i = 0; i < starCount; i++)
     {
-        float scaledI = starCount > 1 ? (float)i / starCount : 0.1;
-        float factor = (scaledI) * (fmod(scaleFactor, scaledI) + 0.5) * 0.5;
-        float opacity = factor;
-        float2 scale = float2(4.0, 0.5) * factor;
-        float2 center = float2(0.0, 0.5 + scale.y);
-        if (abs(ray.x - center.x) < scale.x && abs(ray.y - center.y) < scale.y)
+        float4 currentColor = 0.0;
+        if (Star(currentColor, ray, i, starCount, scaleFactor))
         {
-            float2 uv = ((ray - center) / scale * 0.5 + 0.5);
-            color += textures.Sample(texSampler, float3(uv, 0.0)) * opacity;
+            color += currentColor;
         }
     }
 
@@ -234,6 +267,7 @@ float4 Stars(float2 ray)
 
 bool Character(out float4 outColor, float2 ray)
 {
+    float4 alpha = float4(1.0, 0.0, 1.0, 1.0);
     float2 scale = float2(0.3, 0.3);
     float2 center = characterPos;
     if (abs(ray.x - center.x) < scale.x && abs(ray.y - center.y) < scale.y)
@@ -241,7 +275,7 @@ bool Character(out float4 outColor, float2 ray)
         float2 uv = ((ray - center) / scale * 0.5 + 0.5);
         float4 color = character.Sample(texSampler, float3(uv, (int)pose));
         outColor = 0.0;
-        if (length(color - float4(1.0, 0.0, 1.0, 1.0)) != 0)
+        if (length(color - alpha) > 0.1)
         {
             outColor = color;
         }

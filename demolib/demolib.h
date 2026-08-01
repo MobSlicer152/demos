@@ -148,6 +148,13 @@ extern void ClearDepth(float z);
 // draw a line
 extern void DrawLine(const Vec3& start, const Vec3& end, const Vec4& color);
 
+#define FONT_WIDTH 8
+#define FONT_HEIGHT 8
+#define FONT_ATLAS_WIDTH 128
+#define FONT_ATLAS_HEIGHT 128
+// get a font atlas
+extern byte* CreateFontAtlas();
+
 // draw a character
 extern void DrawChar(int32_t x, int32_t y, char c, const Vec4& color, float size = 1.0f);
 // draw a string

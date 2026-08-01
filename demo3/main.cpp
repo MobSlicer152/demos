@@ -67,12 +67,15 @@ void Demo3::SetupAssets()
 	BeginTransfers();
 	UploadData(std::span((byte*)textureBuf.data(), textureBuf.size() * sizeof(uint32_t)), m_generatedTextures);
 	UploadData(characterBlob, m_characterTextures);
+	UploadData(std::span(CreateFontAtlas(), FONT_ATLAS_WIDTH * FONT_ATLAS_HEIGHT), m_fontTexture);
 
-	std::array<CD3DX12_RESOURCE_BARRIER, 2> barriers = {
+	std::array<CD3DX12_RESOURCE_BARRIER, 3> barriers = {
 		CD3DX12_RESOURCE_BARRIER::Transition(
 			m_generatedTextures.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
 		CD3DX12_RESOURCE_BARRIER::Transition(
-			m_characterTextures.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)};
+			m_characterTextures.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+		CD3DX12_RESOURCE_BARRIER::Transition(
+			m_fontTexture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)};
 	m_transferCommandList->ResourceBarrier(barriers.size(), barriers.data());
 	SubmitTransfers();
 }
@@ -107,7 +110,8 @@ void Demo3::Update()
 	float progress = m_sceneProgress * SCENE_SPEEDS[m_scene];
 
 	Pose pose = Pose::Jump;
-	Vec2 characterPos = Vec2(0.0f, 0.2f + (m_scene == Scene::FountainStab ? -1 / (exp(progress - 4) + exp(-(progress - 4))) : 0.0f));
+	Vec2 characterPos =
+		Vec2(0.0f, 0.2f + (m_scene == Scene::FountainStab ? -1 / (exp(progress - 4) + exp(-(progress - 4))) : 0.0f));
 	if (m_sceneProgress > 0.6f || m_scene > Scene::FountainStab)
 	{
 		pose = Pose::Stab;

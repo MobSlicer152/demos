@@ -97,8 +97,6 @@ class Demo3
 	ComPtr<ID3D12PipelineState> m_pipelineState;
 	ComPtr<ID3D12GraphicsCommandList> m_commandList;
 
-	static constexpr int SHADER_RESOURCE_COUNT = 3;
-
 	// transfer stuff
 	ComPtr<ID3D12CommandQueue> m_transferQueue;
 	ComPtr<ID3D12CommandAllocator> m_transferAllocator;
@@ -139,11 +137,6 @@ class Demo3
 		}
 	};
 	std::array<RootParam, 14> m_rootParams;
-	ComPtr<ID3D12Resource> m_particleBuffer;
-	std::span<Particle> m_particleBufferView;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE m_particleBufferHandle;
-	std::vector<Particle> m_particles;
-	static constexpr size_t MAX_PARTICLES = 2048;
 
 	enum Scene : int
 	{
@@ -176,6 +169,15 @@ class Demo3
 	Vec2 m_smokeSimToScreen;
 	SmokeSimulation m_smokeSim = SmokeSimulation(8, 64, 1.0f / 32);
 
+	static constexpr int SHADER_RESOURCE_COUNT = 4;
+
+	// particles
+	ComPtr<ID3D12Resource> m_particleBuffer;
+	std::span<Particle> m_particleBufferView;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE m_particleBufferHandle;
+	std::vector<Particle> m_particles;
+	static constexpr size_t MAX_PARTICLES = 2048;
+
 	// generated textures get shoved in this
 	ComPtr<ID3D12Resource> m_generatedTextures;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE m_generatedTexturesHandle;
@@ -189,6 +191,12 @@ class Demo3
 	static constexpr uint32_t CHARACTER_TEXTURE_WIDTH = 256;
 	static constexpr uint32_t CHARACTER_TEXTURE_HEIGHT = 256;
 	static constexpr uint32_t CHARACTER_TEXTURE_COUNT = 2;
+
+	// font
+	ComPtr<ID3D12Resource> m_fontTexture;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE m_fontTextureHandle;
+	static constexpr uint32_t FONT_TEXTURE_WIDTH = 128;
+	static constexpr uint32_t FONT_TEXTURE_HEIGHT = 128;
 
 	// create command stuff
 	HRESULT CreateCommandStuff(
